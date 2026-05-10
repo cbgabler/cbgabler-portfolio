@@ -12,3 +12,8 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+*.tsbuildinfo
+vite.config.d.ts
+vite.config.js
+.vercel

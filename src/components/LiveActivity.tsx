@@ -5,6 +5,7 @@ type Props = {
   username: string;
   /** Polling interval in ms. GitHub public events are cached ~60s server-side. */
   pollMs?: number;
+  endpoint?: string;
 };
 
 type Activity = {
@@ -30,7 +31,11 @@ type GitHubEvent = {
   };
 };
 
-export default function LiveActivity({ username, pollMs = 90_000 }: Props) {
+export default function LiveActivity({
+  username,
+  pollMs = 90_000,
+  endpoint,
+}: Props) {
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +47,12 @@ export default function LiveActivity({ username, pollMs = 90_000 }: Props) {
 
     async function fetchActivity() {
       try {
-        const res = await fetch(
-          `https://api.github.com/users/${username}/events/public?per_page=10`,
-          { headers: { Accept: "application/vnd.github+json" } }
-        );
+        const url = endpoint
+          ? `${endpoint}?username=${encodeURIComponent(username)}&per_page=10`
+          : `https://api.github.com/users/${username}/events/public?per_page=10`;
+        const res = await fetch(url, {
+          headers: { Accept: "application/vnd.github+json" },
+        });
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
         const events: GitHubEvent[] = await res.json();
         const next = events.map(toActivity).find(Boolean) as Activity | undefined;
@@ -71,7 +78,7 @@ export default function LiveActivity({ username, pollMs = 90_000 }: Props) {
       cancelled = true;
       clearInterval(id);
     };
-  }, [username, pollMs]);
+  }, [username, pollMs, endpoint]);
 
   return (
     <div className={`activity-card ${pulsing ? "is-pulsing" : ""}`}>

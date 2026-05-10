@@ -45,7 +45,10 @@ export default function App() {
         </section>
 
         <section className="section">
-          <LiveActivity username="cbgabler" />
+          <LiveActivity
+            username="cbgabler"
+            endpoint={import.meta.env.PROD ? "/api/github-events" : undefined}
+          />
         </section>
 
         <section id="about" className="section">
