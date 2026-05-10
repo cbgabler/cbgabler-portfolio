@@ -1,3 +1,4 @@
+import LiveActivity from "./components/LiveActivity";
 import "./App.css";
 
 type Project = {
@@ -41,6 +42,10 @@ export default function App() {
           <h1>Hi, I'm Carson.</h1>
           <p>
           </p>
+        </section>
+
+        <section className="section">
+          <LiveActivity username="cbgabler" />
         </section>
 
         <section id="about" className="section">
