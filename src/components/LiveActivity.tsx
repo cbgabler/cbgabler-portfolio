@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./LiveActivity.css";
 
 type Props = {
@@ -40,51 +40,96 @@ export default function LiveActivity({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pulsing, setPulsing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const lastIdRef = useRef<string | null>(null);
+  const cancelledRef = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchActivity() {
+  const fetchActivity = useCallback(
+    async ({ bust = false }: { bust?: boolean } = {}) => {
       try {
+        const params = new URLSearchParams({
+          username,
+          per_page: "10",
+        });
+        if (bust) params.set("bust", String(Date.now()));
+
         const url = endpoint
-          ? `${endpoint}?username=${encodeURIComponent(username)}&per_page=10`
-          : `https://api.github.com/users/${username}/events/public?per_page=10`;
+          ? `${endpoint}?${params.toString()}`
+          : `https://api.github.com/users/${username}/events/public?per_page=10${
+              bust ? `&_=${Date.now()}` : ""
+            }`;
+
         const res = await fetch(url, {
+          cache: "no-store",
           headers: { Accept: "application/vnd.github+json" },
         });
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
         const events: GitHubEvent[] = await res.json();
-        const next = events.map(toActivity).find(Boolean) as Activity | undefined;
-        if (cancelled || !next) return;
+        const next = events.map(toActivity).find(Boolean) as
+          | Activity
+          | undefined;
+        if (cancelledRef.current) return;
+
+        setFetchedAt(Date.now());
+        setError(null);
+        if (!next) return;
 
         if (lastIdRef.current && lastIdRef.current !== next.id) {
           setPulsing(true);
-          setTimeout(() => !cancelled && setPulsing(false), 2000);
+          setTimeout(
+            () => !cancelledRef.current && setPulsing(false),
+            2000
+          );
         }
         lastIdRef.current = next.id;
         setActivity(next);
-        setError(null);
       } catch (e) {
-        if (!cancelled) setError((e as Error).message);
+        if (!cancelledRef.current) setError((e as Error).message);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelledRef.current) setLoading(false);
       }
-    }
+    },
+    [username, endpoint]
+  );
 
+  useEffect(() => {
+    cancelledRef.current = false;
     fetchActivity();
     const id = setInterval(fetchActivity, pollMs);
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       clearInterval(id);
     };
-  }, [username, pollMs, endpoint]);
+  }, [fetchActivity, pollMs]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const onRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    await fetchActivity({ bust: true });
+    setRefreshing(false);
+  };
 
   return (
     <div className={`activity-card ${pulsing ? "is-pulsing" : ""}`}>
       <div className="activity-header">
         <span className="dot" />
         <span className="activity-title">Latest Activity</span>
+        <button
+          type="button"
+          className={`refresh-btn ${refreshing ? "is-spinning" : ""}`}
+          onClick={onRefresh}
+          aria-label="Refresh"
+          title="Refresh now"
+        >
+          ↻
+        </button>
       </div>
 
       {loading && !activity ? (
@@ -109,10 +154,17 @@ export default function LiveActivity({
           </div>
           <div className="activity-row meta">
             <span className="emoji">⏱</span>
-            <span>{timeAgo(activity.createdAt)}</span>
+            <span>{timeAgo(activity.createdAt, now)}</span>
           </div>
         </a>
       ) : null}
+
+      {fetchedAt && (
+        <div className="activity-footer">
+          fetched {timeAgo(new Date(fetchedAt).toISOString(), now)} · GitHub's
+          feed has a few minutes of lag
+        </div>
+      )}
     </div>
   );
 }
@@ -183,10 +235,12 @@ function toActivity(e: GitHubEvent): Activity | null {
   }
 }
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.round(diff / 60_000);
-  if (mins < 1) return "just now";
+function timeAgo(iso: string, now: number = Date.now()): string {
+  const diff = now - new Date(iso).getTime();
+  const secs = Math.round(diff / 1000);
+  if (secs < 10) return "just now";
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.round(secs / 60);
   if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"} ago`;
   const hours = Math.round(mins / 60);
   if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
