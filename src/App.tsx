@@ -48,6 +48,7 @@ export default function App() {
           <LiveActivity
             username="cbgabler"
             endpoint={import.meta.env.PROD ? "/api/github-events" : undefined}
+            pollMs={import.meta.env.PROD ? 90_000 : 600_000}
           />
         </section>
 

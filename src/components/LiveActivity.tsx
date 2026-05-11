@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./LiveActivity.css";
 
 type Props = {
@@ -15,6 +15,35 @@ type Activity = {
   url: string;
   createdAt: string;
 };
+
+type CachedActivity = {
+  activity: Activity;
+  fetchedAt: number;
+};
+
+const CACHE_VERSION = 1;
+const cacheKey = (username: string) =>
+  `live-activity:v${CACHE_VERSION}:${username}`;
+
+function readCache(username: string): CachedActivity | null {
+  try {
+    const raw = localStorage.getItem(cacheKey(username));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CachedActivity;
+    if (!parsed?.activity?.id) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(username: string, value: CachedActivity): void {
+  try {
+    localStorage.setItem(cacheKey(username), JSON.stringify(value));
+  } catch {
+    // Quota exceeded / private mode — silently ignore.
+  }
+}
 
 type GitHubEvent = {
   id: string;
@@ -38,14 +67,19 @@ export default function LiveActivity({
   pollMs = 90_000,
   endpoint,
 }: Props) {
-  const [activity, setActivity] = useState<Activity | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cached = useMemo(() => readCache(username), [username]);
+  const [activity, setActivity] = useState<Activity | null>(
+    cached?.activity ?? null
+  );
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
   const [pulsing, setPulsing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(
+    cached?.fetchedAt ?? null
+  );
   const [now, setNow] = useState(() => Date.now());
-  const lastIdRef = useRef<string | null>(null);
+  const lastIdRef = useRef<string | null>(cached?.activity.id ?? null);
   const cancelledRef = useRef(false);
 
   const fetchActivity = useCallback(
@@ -69,12 +103,30 @@ export default function LiveActivity({
         });
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
         const events: GitHubEvent[] = await res.json();
-        const next = events.map(toActivity).find(Boolean) as
-          | Activity
-          | undefined;
+
+        // Walk events in order; hydrate the first PushEvent whose commits
+        // are empty (only happens when not going through our proxy, e.g.
+        // `npm run dev`). For public repos this works unauthenticated.
+        let next: Activity | undefined;
+        for (const event of events) {
+          let working = event;
+          if (
+            event.type === "PushEvent" &&
+            !event.payload.commits?.length &&
+            event.payload.head
+          ) {
+            working = await hydrateClientSide(event);
+          }
+          const candidate = toActivity(working);
+          if (candidate) {
+            next = candidate;
+            break;
+          }
+        }
         if (cancelledRef.current) return;
 
-        setFetchedAt(Date.now());
+        const fetchedAtMs = Date.now();
+        setFetchedAt(fetchedAtMs);
         setError(null);
         if (!next) return;
 
@@ -87,7 +139,10 @@ export default function LiveActivity({
         }
         lastIdRef.current = next.id;
         setActivity(next);
+        writeCache(username, { activity: next, fetchedAt: fetchedAtMs });
       } catch (e) {
+        // Keep showing cached activity if we have it; just surface the
+        // error in the footer instead of replacing the whole card.
         if (!cancelledRef.current) setError((e as Error).message);
       } finally {
         if (!cancelledRef.current) setLoading(false);
@@ -136,7 +191,7 @@ export default function LiveActivity({
 
       {loading && !activity ? (
         <Skeleton />
-      ) : error ? (
+      ) : !activity && error ? (
         <div className="activity-error">Couldn't load activity ({error}).</div>
       ) : activity ? (
         <a
@@ -162,9 +217,14 @@ export default function LiveActivity({
       ) : null}
 
       {fetchedAt && (
-        <div className="activity-footer">
-          fetched {timeAgo(new Date(fetchedAt).toISOString(), now)} · GitHub's
-          feed has a few minutes of lag
+        <div
+          className={`activity-footer ${
+            error && activity ? "is-stale" : ""
+          }`}
+        >
+          {error && activity
+            ? `showing cached · refresh failed (${error})`
+            : `fetched ${timeAgo(new Date(fetchedAt).toISOString(), now)}`}
         </div>
       )}
     </div>
@@ -179,6 +239,30 @@ function Skeleton() {
       <div className="skeleton skeleton-line w-40" />
     </div>
   );
+}
+
+async function hydrateClientSide(e: GitHubEvent): Promise<GitHubEvent> {
+  if (!e.payload.head) return e;
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${e.repo.name}/commits/${e.payload.head}`,
+      { headers: { Accept: "application/vnd.github+json" } }
+    );
+    if (!r.ok) return e;
+    const commit = (await r.json()) as {
+      sha: string;
+      commit?: { message?: string };
+    };
+    return {
+      ...e,
+      payload: {
+        ...e.payload,
+        commits: [{ sha: commit.sha, message: commit.commit?.message ?? "" }],
+      },
+    };
+  } catch {
+    return e;
+  }
 }
 
 function toActivity(e: GitHubEvent): Activity | null {

@@ -79,6 +79,10 @@
   letter-spacing: 0.02em;
 }
 
+.activity-footer.is-stale {
+  color: #f59e0b;
+}
+
 .dot {
   width: 8px;
   height: 8px;
