@@ -23,6 +23,8 @@ type GitHubEvent = {
   repo: { name: string };
   payload: {
     commits?: { message: string; sha: string }[];
+    head?: string;
+    size?: number;
     pull_request?: { title: string; html_url: string };
     issue?: { title: string; html_url: string };
     ref?: string;
@@ -188,12 +190,24 @@ function toActivity(e: GitHubEvent): Activity | null {
   };
   switch (e.type) {
     case "PushEvent": {
+      const branch = (e.payload.ref ?? "").replace(/^refs\/heads\//, "");
       const commit = e.payload.commits?.[0];
-      if (!commit) return null;
+      if (commit) {
+        return {
+          ...base,
+          message: commit.message.split("\n")[0],
+          url: `https://github.com/${repo}/commit/${commit.sha}`,
+        };
+      }
+      const head = e.payload.head;
+      if (!head) return null;
+      const count = e.payload.size ?? 1;
       return {
         ...base,
-        message: commit.message.split("\n")[0],
-        url: `https://github.com/${repo}/commit/${commit.sha}`,
+        message: `pushed ${count} commit${count === 1 ? "" : "s"} to ${
+          branch || "main"
+        }`,
+        url: `https://github.com/${repo}/commit/${head}`,
       };
     }
     case "PullRequestEvent":

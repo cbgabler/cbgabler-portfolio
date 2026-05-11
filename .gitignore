@@ -17,3 +17,4 @@ dist-ssr
 vite.config.d.ts
 vite.config.js
 .vercel
+.env*.local
