@@ -1,29 +1,6 @@
 import LiveActivity from "./components/LiveActivity";
+import Projects from "./components/Projects";
 import "./App.css";
-
-type Project = {
-  title: string;
-  description: string;
-  url?: string;
-};
-
-const projects: Project[] = [
-  {
-    title: "Project One",
-    description: "A short description of what this project does.",
-    url: "#",
-  },
-  {
-    title: "Project Two",
-    description: "Another project worth showing off.",
-    url: "#",
-  },
-  {
-    title: "Project Three",
-    description: "Add as many as you'd like.",
-    url: "#",
-  },
-];
 
 export default function App() {
   return (
@@ -59,15 +36,11 @@ export default function App() {
         </section>
 
         <section id="projects" className="section">
-          <h2>Projects</h2>
-          <div className="grid">
-            {projects.map((p) => (
-              <a key={p.title} href={p.url} className="card">
-                <h3>{p.title}</h3>
-                <p>{p.description}</p>
-              </a>
-            ))}
-          </div>
+          <Projects
+            username="cbgabler"
+            endpoint={import.meta.env.PROD ? "/api/projects" : undefined}
+            limit={12}
+          />
         </section>
 
         <section id="contact" className="section">
