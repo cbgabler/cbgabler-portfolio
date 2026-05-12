@@ -34,7 +34,7 @@ type CachedProjects = {
   fetchedAt: number;
 };
 
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;
 const cacheKey = (username: string) =>
   `projects:v${CACHE_VERSION}:${username}`;
 
@@ -178,113 +178,222 @@ export default function Projects({
     setRefreshing(false);
   };
 
+  const showStale = Boolean(error) && projects.length > 0;
+  const refreshLabel = fetchedAt
+    ? showStale
+      ? "refresh failed"
+      : `last refresh ${timeAgo(new Date(fetchedAt).toISOString(), now)}`
+    : null;
+
   return (
-    <div className="projects">
-      <div className="projects-header">
-        <h2>Projects</h2>
-        <div className="projects-meta">
-          {fetchedAt && (
-            <span
-              className={`projects-fetched ${
-                error && projects.length ? "is-stale" : ""
-              }`}
-            >
-              {error && projects.length
-                ? `cached · refresh failed`
-                : `updated ${timeAgo(new Date(fetchedAt).toISOString(), now)}`}
-            </span>
-          )}
-          <button
-            type="button"
-            className={`refresh-btn ${refreshing ? "is-spinning" : ""}`}
-            onClick={onRefresh}
-            aria-label="Refresh projects"
-            title="Refresh"
-          >
-            ↻
-          </button>
-        </div>
+    <div className="terminal" role="region" aria-label="Projects">
+      <div className="terminal-titlebar">
+        <span className="tl-dots" aria-hidden>
+          <span className="tl-dot tl-red" />
+          <span className="tl-dot tl-yellow" />
+          <span className="tl-dot tl-green" />
+        </span>
+        <h2 className="tl-title">
+          carson@portfolio: <span className="tl-path">~/projects</span>
+        </h2>
+        <span className="tl-spacer" aria-hidden />
       </div>
 
-      {loading && projects.length === 0 ? (
-        <ProjectsSkeleton />
-      ) : !projects.length && error ? (
-        <div className="projects-error">
-          Couldn't load projects ({error}).
+      <div className="terminal-statusbar">
+        <span className="status-label">PROJECTS</span>
+        <span className="status-sep">·</span>
+        <span>
+          {projects.length || "—"} repo{projects.length === 1 ? "" : "s"}
+        </span>
+        {refreshLabel && (
+          <>
+            <span className="status-sep">·</span>
+            <span className={showStale ? "status-stale" : ""}>
+              {refreshLabel}
+            </span>
+          </>
+        )}
+        <span className="status-spacer" aria-hidden />
+        <button
+          type="button"
+          className={`status-refresh ${refreshing ? "is-spinning" : ""}`}
+          onClick={onRefresh}
+          aria-label="Refresh projects"
+          title="Refresh"
+        >
+          ↻
+        </button>
+      </div>
+
+      <div className="terminal-body">
+        <div className="prompt-line">
+          <span className="prompt-sigil">$</span>{" "}
+          <span className="prompt-cmd">git log --graph --decorate</span>
+          <span className="prompt-cursor" aria-hidden />
         </div>
-      ) : (
-        <div className="projects-grid">
-          {projects.map((p) => (
-            <a
-              key={p.fullName}
-              href={p.url}
-              target="_blank"
-              rel="noreferrer"
-              className="project-card"
-            >
-              <div className="project-card-top">
-                <h3 className="project-name">
-                  {p.name}
-                  {p.isPrivate && (
-                    <span className="project-badge" title="Private repo">
-                      private
-                    </span>
-                  )}
-                </h3>
-                <span
-                  className="project-updated"
-                  title={new Date(p.pushedAt).toLocaleString()}
-                >
-                  {timeAgo(p.pushedAt, now)}
-                </span>
-              </div>
 
-              {p.description && (
-                <p className="project-description">{p.description}</p>
-              )}
-
-              {p.latestCommit && (
-                <div className="project-commit" title="Latest commit">
-                  <span className="emoji">💬</span>
-                  <span className="project-commit-msg">
-                    {p.latestCommit.message}
-                  </span>
-                </div>
-              )}
-
-              <div className="project-footer">
-                {p.language && (
-                  <span className="project-tag">
-                    <span
-                      className="project-lang-dot"
-                      style={{ background: languageColor(p.language) }}
-                    />
-                    {p.language}
-                  </span>
-                )}
-                {p.stars > 0 && (
-                  <span className="project-tag">★ {p.stars}</span>
-                )}
-              </div>
-            </a>
-          ))}
-        </div>
-      )}
+        {loading && projects.length === 0 ? (
+          <GitLogSkeleton />
+        ) : !projects.length && error ? (
+          <div className="git-log-error">
+            ! couldn't load projects ({error})
+          </div>
+        ) : (
+          <ol className="git-log">
+            {projects.map((p, i) => (
+              <GitLogEntry
+                key={p.fullName}
+                project={p}
+                isLast={i === projects.length - 1}
+                now={now}
+              />
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }
 
-function ProjectsSkeleton() {
+function GitLogEntry({
+  project,
+  isLast,
+  now,
+}: {
+  project: Project;
+  isLast: boolean;
+  now: number;
+}) {
+  const sha = (
+    project.latestCommit?.sha ?? fallbackSha(project.fullName + project.pushedAt)
+  ).slice(0, 7);
+
   return (
-    <div className="projects-grid" aria-hidden>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="project-card project-card-skel">
-          <div className="skeleton skel-line w-60" />
-          <div className="skeleton skel-line w-90" />
-          <div className="skeleton skel-line w-40" />
+    <li className="entry">
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noreferrer"
+        className="entry-link"
+      >
+        <div className="row row-head">
+          <span className="g-col" aria-hidden>
+            *
+          </span>
+          <span className="sha-col">{sha}</span>
+          <span className="content-col content-head">
+            <span className="repo-name">{project.name}</span>
+            {project.isPrivate && (
+              <span className="private-pill">[private]</span>
+            )}
+          </span>
+          <span
+            className="ts-col"
+            title={new Date(project.pushedAt).toLocaleString()}
+          >
+            {timeAgo(project.pushedAt, now)}
+          </span>
         </div>
+
+        {project.description && (
+          <div className="row row-sub">
+            <span className="g-col" aria-hidden>
+              |
+            </span>
+            <span className="sha-col" aria-hidden />
+            <span className="content-col description">
+              {project.description}
+            </span>
+          </div>
+        )}
+
+        {project.latestCommit && (
+          <div className="row row-sub">
+            <span className="g-col" aria-hidden>
+              |
+            </span>
+            <span className="sha-col" aria-hidden />
+            <span className="content-col commit-msg">
+              <span className="commit-arrow" aria-hidden>
+                →
+              </span>
+              {project.latestCommit.message || "(no commit message)"}
+            </span>
+          </div>
+        )}
+
+        {(project.language || project.stars > 0) && (
+          <div className="row row-sub">
+            <span className="g-col" aria-hidden>
+              |
+            </span>
+            <span className="sha-col" aria-hidden />
+            <span className="content-col meta">
+              {project.language && (
+                <span className="meta-item">
+                  <span
+                    className="lang-dot"
+                    style={{ background: languageColor(project.language) }}
+                  />
+                  {project.language}
+                </span>
+              )}
+              {project.stars > 0 && (
+                <span className="meta-item">★ {project.stars}</span>
+              )}
+            </span>
+          </div>
+        )}
+      </a>
+
+      {!isLast && (
+        <div className="row row-connector" aria-hidden>
+          <span className="g-col">|</span>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function GitLogSkeleton() {
+  return (
+    <ol className="git-log" aria-hidden>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <li key={i} className="entry entry-skel">
+          <div className="row row-head">
+            <span className="g-col">*</span>
+            <span className="sha-col">
+              <span className="skel skel-line" />
+            </span>
+            <span className="content-col">
+              <span className="skel skel-line w-50" />
+            </span>
+            <span className="ts-col">
+              <span className="skel skel-line w-80" />
+            </span>
+          </div>
+          <div className="row row-sub">
+            <span className="g-col">|</span>
+            <span className="sha-col" />
+            <span className="content-col">
+              <span className="skel skel-line w-90" />
+            </span>
+          </div>
+          <div className="row row-sub">
+            <span className="g-col">|</span>
+            <span className="sha-col" />
+            <span className="content-col">
+              <span className="skel skel-line w-70" />
+            </span>
+          </div>
+          {i < 3 && (
+            <div className="row row-connector">
+              <span className="g-col">|</span>
+            </div>
+          )}
+        </li>
       ))}
-    </div>
+    </ol>
   );
 }
 
@@ -305,7 +414,18 @@ function timeAgo(iso: string, now: number = Date.now()): string {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
-// A tiny subset of GitHub's linguist colors; falls back to accent.
+// Stable 7-char hex pseudo-SHA, used when the commit isn't available
+// (e.g. in dev mode hitting GitHub directly without commit hydration).
+function fallbackSha(seed: string): string {
+  let hash = 5381;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) + hash) ^ seed.charCodeAt(i);
+  }
+  const hex = Math.abs(hash).toString(16);
+  return (hex + "0000000").slice(0, 7);
+}
+
+// Subset of GitHub linguist colors. Falls back to phosphor green.
 const LANG_COLORS: Record<string, string> = {
   TypeScript: "#3178c6",
   JavaScript: "#f1e05a",
@@ -330,5 +450,5 @@ const LANG_COLORS: Record<string, string> = {
 };
 
 function languageColor(language: string): string {
-  return LANG_COLORS[language] ?? "var(--accent, #7aa2ff)";
+  return LANG_COLORS[language] ?? "#9eff8a";
 }

@@ -1,123 +1,288 @@
-.projects {
-  display: block;
+/* ============================================================
+   Projects — terminal / git-log themed
+   ============================================================ */
+
+.terminal {
+  /* Scoped palette so the rest of the site keeps its theme. */
+  --term-bg: #08090b;
+  --term-titlebar: #14171c;
+  --term-statusbar: #0f1216;
+  --term-border: #1f242c;
+  --term-text: #d8dee9;
+  --term-muted: #8a93a3;
+  --term-dim: #555c69;
+  --term-phosphor: #9eff8a;
+  --term-phosphor-dim: #4e8c45;
+  --term-amber: #ffb454;
+  --term-red: #ff6e6e;
+  --term-graph: #4e8c45;
+
+  --term-font: ui-monospace, "JetBrains Mono", "Fira Code", SFMono-Regular,
+    Menlo, Consolas, monospace;
+
+  background: var(--term-bg);
+  color: var(--term-text);
+  border: 1px solid var(--term-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px -20px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  font-family: var(--term-font);
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
-.projects-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 1rem;
-}
+/* ----- Title bar (window chrome) --------------------------- */
 
-.projects-header h2 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.projects-meta {
-  display: inline-flex;
+.terminal-titlebar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 0.6rem;
-  color: var(--muted);
-  font-size: 0.78rem;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--term-titlebar);
+  border-bottom: 1px solid var(--term-border);
+}
+
+.tl-dots {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tl-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.tl-red    { background: #ff5f57; }
+.tl-yellow { background: #febc2e; }
+.tl-green  { background: #28c840; }
+
+.tl-title {
+  margin: 0;
+  font: 600 0.78rem/1 var(--term-font);
+  letter-spacing: 0.02em;
+  color: var(--term-muted);
+  text-align: center;
+}
+
+.tl-path {
+  color: var(--term-text);
+}
+
+.tl-spacer {
+  /* mirrors width of traffic lights so the title stays centered */
+  width: 52px;
+  display: inline-block;
+}
+
+/* ----- Status bar ----------------------------------------- */
+
+.terminal-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.85rem;
+  background: var(--term-statusbar);
+  border-bottom: 1px solid var(--term-border);
+  color: var(--term-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status-label {
+  color: var(--term-phosphor-dim);
+  font-weight: 600;
+}
+
+.status-sep {
+  color: var(--term-dim);
+}
+
+.status-stale {
+  color: var(--term-amber);
+  text-transform: none;
   letter-spacing: 0.02em;
 }
 
-.projects-fetched.is-stale {
-  color: #f59e0b;
+.status-spacer {
+  flex: 1;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.project-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem 1.1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: inherit;
-  text-decoration: none;
-  transition: transform 120ms ease, border-color 120ms ease,
-    box-shadow 200ms ease;
-}
-
-.project-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent);
-  text-decoration: none;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.project-card-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.project-name {
-  margin: 0;
-  font-size: 1.05rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+.status-refresh {
+  background: transparent;
+  border: 1px solid var(--term-border);
+  color: var(--term-muted);
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  padding: 0;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.status-refresh:hover {
+  color: var(--term-phosphor);
+  border-color: var(--term-phosphor-dim);
+}
+
+.status-refresh.is-spinning {
+  animation: term-spin 700ms linear infinite;
+  pointer-events: none;
+}
+
+@keyframes term-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ----- Body / prompt -------------------------------------- */
+
+.terminal-body {
+  padding: 1rem 1rem 1.25rem;
+}
+
+.prompt-line {
+  color: var(--term-text);
+  margin-bottom: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prompt-sigil {
+  color: var(--term-phosphor);
+  font-weight: 600;
+}
+
+.prompt-cmd {
+  color: var(--term-text);
+}
+
+.prompt-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: var(--term-phosphor);
+  vertical-align: text-bottom;
+  margin-left: 0.35em;
+  animation: cursor-blink 1.05s steps(1) infinite;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+
+/* ----- Git log --------------------------------------------- */
+
+.git-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.git-log-error {
+  color: var(--term-red);
+  padding: 0.5rem 0;
+}
+
+.entry {
+  position: relative;
+}
+
+.entry-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.entry-link:hover {
+  background: rgba(158, 255, 138, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(158, 255, 138, 0.18);
+  text-decoration: none;
+}
+
+.entry-link:focus-visible {
+  outline: 1px solid var(--term-phosphor);
+  outline-offset: 1px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 18px 72px 1fr auto;
+  gap: 0.65rem;
+  align-items: baseline;
+}
+
+.g-col {
+  color: var(--term-graph);
+  text-align: center;
+  user-select: none;
+  font-weight: 600;
+}
+
+.sha-col {
+  color: var(--term-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.content-col {
   min-width: 0;
+}
+
+.content-head {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.repo-name {
+  color: var(--term-phosphor);
+  font-weight: 600;
   word-break: break-word;
 }
 
-.project-badge {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 1px 6px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted);
-  font-weight: 500;
+.entry-link:hover .repo-name {
+  text-shadow: 0 0 8px rgba(158, 255, 138, 0.45);
 }
 
-.project-updated {
-  color: var(--muted);
+.private-pill {
+  color: var(--term-red);
+  border: 1px solid currentColor;
+  padding: 0 0.35rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.ts-col {
+  color: var(--term-phosphor-dim);
   font-size: 0.78rem;
   white-space: nowrap;
-  flex-shrink: 0;
+  text-align: right;
 }
 
-.project-description {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
-.project-commit {
-  display: flex;
-  gap: 0.45rem;
-  align-items: baseline;
+.row-sub {
   font-size: 0.85rem;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  padding: 0.45rem 0.6rem;
 }
 
-.project-commit .emoji {
-  flex-shrink: 0;
-}
-
-.project-commit-msg {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.82rem;
+.description {
+  color: var(--term-text);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -126,66 +291,142 @@
   word-break: break-word;
 }
 
-.project-footer {
-  display: flex;
-  gap: 0.6rem;
+.commit-msg {
+  color: var(--term-muted);
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commit-arrow {
+  color: var(--term-phosphor-dim);
+  flex-shrink: 0;
+}
+
+.meta {
+  color: var(--term-muted);
+  display: inline-flex;
+  gap: 0.9rem;
   align-items: center;
-  margin-top: auto;
-  padding-top: 0.35rem;
   flex-wrap: wrap;
 }
 
-.project-tag {
+.meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--muted);
+  gap: 0.4rem;
+  font-size: 0.8rem;
 }
 
-.project-lang-dot {
+.lang-dot {
   width: 0.6rem;
   height: 0.6rem;
   border-radius: 50%;
   display: inline-block;
+  box-shadow: 0 0 6px currentColor;
 }
 
-.project-card-skel {
-  min-height: 110px;
+.row-connector {
+  /* Single `|` line between entries — keeps the graph visually continuous. */
+  padding: 0.05rem 0 0.05rem;
+}
+
+.row-connector .g-col {
+  color: var(--term-graph);
+  opacity: 0.6;
+}
+
+/* ----- Skeleton ------------------------------------------- */
+
+.entry-skel .skel {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .skel-line {
-  height: 0.85rem;
-  margin: 0.4rem 0;
+  height: 0.7rem;
+  width: 100%;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.12) 50%,
-    rgba(255, 255, 255, 0.04) 100%
+    rgba(158, 255, 138, 0.04) 0%,
+    rgba(158, 255, 138, 0.14) 50%,
+    rgba(158, 255, 138, 0.04) 100%
   );
   background-size: 200% 100%;
-  border-radius: 6px;
-  animation: projects-shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+  animation: term-shimmer 1.4s ease-in-out infinite;
 }
 
-.w-40 { width: 40%; }
-.w-60 { width: 60%; }
+.w-50 { width: 50%; }
+.w-70 { width: 70%; }
+.w-80 { width: 80%; }
 .w-90 { width: 90%; }
 
-@keyframes projects-shimmer {
+@keyframes term-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
-.projects-error {
-  color: var(--muted);
-  font-size: 0.9rem;
+/* ----- Responsive ----------------------------------------- */
+
+@media (max-width: 640px) {
+  .terminal {
+    font-size: 0.82rem;
+  }
+
+  .tl-title {
+    font-size: 0.68rem;
+    /* On phones, hide the user@host bit; just keep ~/projects */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tl-spacer {
+    width: 0;
+  }
+
+  .terminal-statusbar {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+  }
+
+  .row {
+    grid-template-columns: 16px 56px 1fr auto;
+    gap: 0.45rem;
+  }
+
+  .ts-col {
+    font-size: 0.7rem;
+  }
+
+  .terminal-body {
+    padding: 0.85rem 0.7rem 1rem;
+  }
+}
+
+@media (max-width: 440px) {
+  /* Very narrow — drop the SHA column entirely. The graph + content + ts
+     keeps the git-log feel without overflowing. */
+  .row {
+    grid-template-columns: 14px 1fr auto;
+  }
+  .sha-col {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .prompt-cursor,
   .skel-line,
-  .project-card {
+  .status-refresh.is-spinning {
     animation: none;
-    transition: none;
+  }
+  .prompt-cursor {
+    background: var(--term-phosphor);
+    opacity: 0.7;
   }
 }
