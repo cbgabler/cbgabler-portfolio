@@ -1,62 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useNow, useProjects, type Project } from "../hooks/useProjects";
+import Terminal from "./Terminal";
 import "./Projects.css";
 
 type Props = {
   username: string;
-  /** When set, fetch through this server-side proxy (so private repos work). */
   endpoint?: string;
-  /** Max repos to show. */
   limit?: number;
-  /** Polling interval in ms. Defaults to 10 minutes. */
   pollMs?: number;
 };
-
-type Project = {
-  name: string;
-  fullName: string;
-  url: string;
-  description: string | null;
-  language: string | null;
-  stars: number;
-  pushedAt: string;
-  isPrivate: boolean;
-  topics: string[];
-  homepage: string | null;
-  latestCommit: {
-    sha: string;
-    message: string;
-    url: string;
-  } | null;
-};
-
-type CachedProjects = {
-  projects: Project[];
-  fetchedAt: number;
-};
-
-const CACHE_VERSION = 2;
-const cacheKey = (username: string) =>
-  `projects:v${CACHE_VERSION}:${username}`;
-
-function readCache(username: string): CachedProjects | null {
-  try {
-    const raw = localStorage.getItem(cacheKey(username));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as CachedProjects;
-    if (!Array.isArray(parsed?.projects)) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function writeCache(username: string, value: CachedProjects): void {
-  try {
-    localStorage.setItem(cacheKey(username), JSON.stringify(value));
-  } catch {
-    // ignore quota / private mode
-  }
-}
 
 export default function Projects({
   username,
@@ -64,119 +16,9 @@ export default function Projects({
   limit = 12,
   pollMs = 10 * 60_000,
 }: Props) {
-  const cached = useMemo(() => readCache(username), [username]);
-  const [projects, setProjects] = useState<Project[]>(cached?.projects ?? []);
-  const [loading, setLoading] = useState(!cached);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [fetchedAt, setFetchedAt] = useState<number | null>(
-    cached?.fetchedAt ?? null
-  );
-  const [now, setNow] = useState(() => Date.now());
-  const cancelledRef = useRef(false);
-
-  const fetchProjects = useCallback(
-    async ({ bust = false }: { bust?: boolean } = {}) => {
-      try {
-        let next: Project[];
-        if (endpoint) {
-          const params = new URLSearchParams({
-            username,
-            limit: String(limit),
-          });
-          if (bust) params.set("bust", String(Date.now()));
-          const res = await fetch(`${endpoint}?${params.toString()}`, {
-            cache: "no-store",
-            headers: { Accept: "application/json" },
-          });
-          if (!res.ok) throw new Error(`Projects API ${res.status}`);
-          next = (await res.json()) as Project[];
-        } else {
-          // Dev fallback: hit GitHub directly (public repos only, no token).
-          const url = `https://api.github.com/users/${encodeURIComponent(
-            username
-          )}/repos?per_page=100&sort=pushed&direction=desc&type=owner${
-            bust ? `&_=${Date.now()}` : ""
-          }`;
-          const res = await fetch(url, {
-            cache: "no-store",
-            headers: { Accept: "application/vnd.github+json" },
-          });
-          if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-          const repos = (await res.json()) as Array<{
-            name: string;
-            full_name: string;
-            html_url: string;
-            description: string | null;
-            fork: boolean;
-            archived: boolean;
-            private: boolean;
-            language: string | null;
-            stargazers_count: number;
-            pushed_at: string;
-            topics?: string[];
-            homepage: string | null;
-          }>;
-          next = repos
-            .filter((r) => !r.fork && !r.archived)
-            .slice(0, limit)
-            .map((r) => ({
-              name: r.name,
-              fullName: r.full_name,
-              url: r.html_url,
-              description: r.description,
-              language: r.language,
-              stars: r.stargazers_count,
-              pushedAt: r.pushed_at,
-              isPrivate: r.private,
-              topics: r.topics ?? [],
-              homepage: r.homepage,
-              latestCommit: null,
-            }));
-        }
-
-        if (cancelledRef.current) return;
-
-        next.sort(
-          (a, b) =>
-            new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime()
-        );
-
-        const fetchedAtMs = Date.now();
-        setProjects(next);
-        setFetchedAt(fetchedAtMs);
-        setError(null);
-        writeCache(username, { projects: next, fetchedAt: fetchedAtMs });
-      } catch (e) {
-        if (!cancelledRef.current) setError((e as Error).message);
-      } finally {
-        if (!cancelledRef.current) setLoading(false);
-      }
-    },
-    [username, endpoint, limit]
-  );
-
-  useEffect(() => {
-    cancelledRef.current = false;
-    fetchProjects();
-    const id = setInterval(fetchProjects, pollMs);
-    return () => {
-      cancelledRef.current = true;
-      clearInterval(id);
-    };
-  }, [fetchProjects, pollMs]);
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const onRefresh = async () => {
-    if (refreshing) return;
-    setRefreshing(true);
-    await fetchProjects({ bust: true });
-    setRefreshing(false);
-  };
+  const { projects, loading, error, refreshing, fetchedAt, refresh } =
+    useProjects({ username, endpoint, limit, pollMs });
+  const now = useNow();
 
   const showStale = Boolean(error) && projects.length > 0;
   const refreshLabel = fetchedAt
@@ -186,72 +28,48 @@ export default function Projects({
     : null;
 
   return (
-    <div className="terminal" role="region" aria-label="Projects">
-      <div className="terminal-titlebar">
-        <span className="tl-dots" aria-hidden>
-          <span className="tl-dot tl-red" />
-          <span className="tl-dot tl-yellow" />
-          <span className="tl-dot tl-green" />
-        </span>
-        <h2 className="tl-title">
-          carson@portfolio: <span className="tl-path">~/projects</span>
-        </h2>
-        <span className="tl-spacer" aria-hidden />
-      </div>
-
-      <div className="terminal-statusbar">
-        <span className="status-label">PROJECTS</span>
-        <span className="status-sep">·</span>
-        <span>
-          {projects.length || "—"} repo{projects.length === 1 ? "" : "s"}
-        </span>
-        {refreshLabel && (
-          <>
-            <span className="status-sep">·</span>
-            <span className={showStale ? "status-stale" : ""}>
-              {refreshLabel}
-            </span>
-          </>
-        )}
-        <span className="status-spacer" aria-hidden />
-        <button
-          type="button"
-          className={`status-refresh ${refreshing ? "is-spinning" : ""}`}
-          onClick={onRefresh}
-          aria-label="Refresh projects"
-          title="Refresh"
-        >
-          ↻
-        </button>
-      </div>
-
-      <div className="terminal-body">
-        <div className="prompt-line">
-          <span className="prompt-sigil">$</span>{" "}
-          <span className="prompt-cmd">git log --graph --decorate</span>
-          <span className="prompt-cursor" aria-hidden />
+    <Terminal
+      path="~/projects"
+      command="git log --graph --decorate"
+      onRefresh={refresh}
+      refreshing={refreshing}
+      status={
+        <>
+          <span className="status-label">PROJECTS</span>
+          <span className="status-sep">·</span>
+          <span>
+            {projects.length || "—"} repo{projects.length === 1 ? "" : "s"}
+          </span>
+          {refreshLabel && (
+            <>
+              <span className="status-sep">·</span>
+              <span className={showStale ? "status-stale" : ""}>
+                {refreshLabel}
+              </span>
+            </>
+          )}
+        </>
+      }
+    >
+      {loading && projects.length === 0 ? (
+        <GitLogSkeleton />
+      ) : !projects.length && error ? (
+        <div className="git-log-error">
+          ! couldn't load projects ({error})
         </div>
-
-        {loading && projects.length === 0 ? (
-          <GitLogSkeleton />
-        ) : !projects.length && error ? (
-          <div className="git-log-error">
-            ! couldn't load projects ({error})
-          </div>
-        ) : (
-          <ol className="git-log">
-            {projects.map((p, i) => (
-              <GitLogEntry
-                key={p.fullName}
-                project={p}
-                isLast={i === projects.length - 1}
-                now={now}
-              />
-            ))}
-          </ol>
-        )}
-      </div>
-    </div>
+      ) : (
+        <ol className="git-log">
+          {projects.map((p, i) => (
+            <GitLogEntry
+              key={p.fullName}
+              project={p}
+              isLast={i === projects.length - 1}
+              now={now}
+            />
+          ))}
+        </ol>
+      )}
+    </Terminal>
   );
 }
 
@@ -270,12 +88,7 @@ function GitLogEntry({
 
   return (
     <li className="entry">
-      <a
-        href={project.url}
-        target="_blank"
-        rel="noreferrer"
-        className="entry-link"
-      >
+      <Link to={`/projects/${project.name}`} className="entry-link">
         <div className="row row-head">
           <span className="g-col" aria-hidden>
             *
@@ -344,7 +157,7 @@ function GitLogEntry({
             </span>
           </div>
         )}
-      </a>
+      </Link>
 
       {!isLast && (
         <div className="row row-connector" aria-hidden>
@@ -397,7 +210,11 @@ function GitLogSkeleton() {
   );
 }
 
-function timeAgo(iso: string, now: number = Date.now()): string {
+// ----------------------------------------------------------------
+// Helpers (also re-exported for ProjectDetail's use)
+// ----------------------------------------------------------------
+
+export function timeAgo(iso: string, now: number = Date.now()): string {
   const diff = now - new Date(iso).getTime();
   const secs = Math.round(diff / 1000);
   if (secs < 10) return "just now";
@@ -414,9 +231,7 @@ function timeAgo(iso: string, now: number = Date.now()): string {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
-// Stable 7-char hex pseudo-SHA, used when the commit isn't available
-// (e.g. in dev mode hitting GitHub directly without commit hydration).
-function fallbackSha(seed: string): string {
+export function fallbackSha(seed: string): string {
   let hash = 5381;
   for (let i = 0; i < seed.length; i++) {
     hash = ((hash << 5) + hash) ^ seed.charCodeAt(i);
@@ -425,7 +240,6 @@ function fallbackSha(seed: string): string {
   return (hex + "0000000").slice(0, 7);
 }
 
-// Subset of GitHub linguist colors. Falls back to phosphor green.
 const LANG_COLORS: Record<string, string> = {
   TypeScript: "#3178c6",
   JavaScript: "#f1e05a",
@@ -449,6 +263,6 @@ const LANG_COLORS: Record<string, string> = {
   Svelte: "#ff3e00",
 };
 
-function languageColor(language: string): string {
+export function languageColor(language: string): string {
   return LANG_COLORS[language] ?? "#9eff8a";
 }
