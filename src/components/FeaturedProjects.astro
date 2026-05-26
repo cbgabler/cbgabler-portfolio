@@ -10,11 +10,11 @@ const featured = projects.filter((p) => p.data.featured);
 const rest = projects.filter((p) => !p.data.featured);
 ---
 
-<section id="projects" class="py-12 sm:py-16" aria-labelledby="projects-heading">
-  <header class="mb-8">
+<section id="projects" class="py-16 sm:py-20" aria-labelledby="projects-heading">
+  <header class="mb-10">
     <h2
       id="projects-heading"
-      class="font-display text-2xl sm:text-3xl font-semibold text-[var(--color-fg-strong)]"
+      class="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-fg-strong)]"
     >
       Projects
     </h2>
@@ -29,7 +29,13 @@ const rest = projects.filter((p) => !p.data.featured);
       <ProjectCard project={project} featured />
     ))}
     {rest.length > 0 && (
-      <div class="grid grid-cols-1 gap-6">
+      <div
+        class={
+          rest.length > 1
+            ? "grid grid-cols-1 md:grid-cols-2 gap-6"
+            : "grid grid-cols-1 gap-6"
+        }
+      >
         {rest.map((project) => <ProjectCard project={project} />)}
       </div>
     )}

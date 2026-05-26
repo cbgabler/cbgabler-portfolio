@@ -11,22 +11,22 @@ import { SITE } from "../data/site";
   <h1
     id="hero-heading"
     class="font-display font-semibold leading-[1.02] text-[var(--color-fg-strong)] fade-up"
-    style="font-size: clamp(2.5rem, 7vw, 4.5rem); animation-delay: 40ms;"
+    style="font-size: clamp(2.75rem, 9vw, 6.5rem); animation-delay: 40ms;"
   >
     {SITE.name}
   </h1>
 
-  <hr class="accent-rule mt-6 mb-6" />
+  <hr class="accent-rule mt-7 mb-7" />
 
   <p
-    class="text-lg sm:text-xl text-[var(--color-fg)] max-w-[58ch] leading-[1.55] fade-up"
+    class="text-lg sm:text-2xl text-[var(--color-fg)] max-w-[60ch] leading-[1.5] fade-up"
     style="animation-delay: 120ms;"
   >
     {SITE.tagline}
   </p>
 
   <p
-    class="text-sm text-[var(--color-fg-muted)] max-w-[60ch] mt-3 leading-relaxed fade-up"
+    class="text-sm sm:text-base text-[var(--color-fg-muted)] max-w-[62ch] mt-3 leading-relaxed fade-up"
     style="animation-delay: 180ms;"
   >
     {SITE.status}
@@ -81,7 +81,13 @@ import { SITE } from "../data/site";
 
 <style>
   .hero {
-    padding: 4rem 0 4.5rem;
+    padding: 5rem 0 5.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      padding: 7rem 0 6rem;
+    }
   }
 
   .hero-cta {

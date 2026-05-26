@@ -63,51 +63,53 @@ if (SITE.contact.scholar) {
 }
 ---
 
-<section id="contact" class="py-12 sm:py-16" aria-labelledby="contact-heading">
-  <header class="mb-6">
-    <h2
-      id="contact-heading"
-      class="font-display text-2xl sm:text-3xl font-semibold text-[var(--color-fg-strong)]"
-    >
-      Contact
-    </h2>
-    <p class="text-sm text-[var(--color-fg-muted)] mt-2 max-w-[55ch]">
-      Reach out about graduate research positions, embedded-security
-      collaborations, or interesting firmware. Email is fastest.
-    </p>
-  </header>
+<section id="contact" class="py-16 sm:py-20" aria-labelledby="contact-heading">
+  <div class="max-w-2xl">
+    <header class="mb-6">
+      <h2
+        id="contact-heading"
+        class="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-fg-strong)]"
+      >
+        Contact
+      </h2>
+      <p class="text-sm text-[var(--color-fg-muted)] mt-2 max-w-[55ch]">
+        Reach out about graduate research positions, embedded-security
+        collaborations, or interesting firmware. Email is fastest.
+      </p>
+    </header>
 
-  <address class="not-italic contact-card">
-    <ul class="contact-list">
-      {rows.map((row) => (
-        <li class="contact-row">
-          <Icon name={row.icon} class="contact-icon" />
-          <div class="contact-line">
-            <span class="contact-label">{row.label}</span>
-            {row.href ? (
-              <a
-                href={row.href}
-                target={row.external ? "_blank" : undefined}
-                rel={row.external ? "noreferrer" : undefined}
-                class="contact-value"
-              >
-                {row.value}
-              </a>
-            ) : (
-              <span class="contact-value">{row.value}</span>
-            )}
-          </div>
-        </li>
-      ))}
-    </ul>
+    <address class="not-italic contact-card">
+      <ul class="contact-list">
+        {rows.map((row) => (
+          <li class="contact-row">
+            <Icon name={row.icon} class="contact-icon" />
+            <div class="contact-line">
+              <span class="contact-label">{row.label}</span>
+              {row.href ? (
+                <a
+                  href={row.href}
+                  target={row.external ? "_blank" : undefined}
+                  rel={row.external ? "noreferrer" : undefined}
+                  class="contact-value"
+                >
+                  {row.value}
+                </a>
+              ) : (
+                <span class="contact-value">{row.value}</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
 
-    {SITE.cv?.file && (
-      <a href="/cv" class="cv-cta">
-        <Icon name="lucide:file-down" class="w-4 h-4" />
-        <span>Download {SITE.cv.label}</span>
-      </a>
-    )}
-  </address>
+      {SITE.cv?.file && (
+        <a href="/cv" class="cv-cta">
+          <Icon name="lucide:file-down" class="w-4 h-4" />
+          <span>Download {SITE.cv.label}</span>
+        </a>
+      )}
+    </address>
+  </div>
 </section>
 
 <style>
