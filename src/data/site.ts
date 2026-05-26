@@ -29,7 +29,7 @@ export const SITE = {
      *  is an industry resume; suitable for industry but not ideal for
      *  graduate-school admissions audiences. */
     file: "/Carson_Gabler_Resume.pdf",
-    label: "Résumé (PDF)",
+    label: "Resume (PDF)",
   },
 
   /** Contact + professional links. Set any to null to hide. */
