@@ -31,8 +31,16 @@ const description = data.tagline.length > 155
     </a>
 
     <header class="mb-10 max-w-3xl">
-      <div class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)] mb-3 font-mono">
-        {data.date}
+      <div class="project-meta mb-3">
+        <span class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)] font-mono">
+          {data.date}
+        </span>
+        {data.status && (
+          <span class="status-pill">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>{data.status}</span>
+          </span>
+        )}
       </div>
       <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] text-[var(--color-fg-strong)] mb-4">
         {data.title}

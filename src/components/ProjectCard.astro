@@ -38,8 +38,16 @@ const href = `/projects/${slug}/`;
   )}
 
   <div class="project-body">
-    <div class="text-[0.7rem] uppercase tracking-[0.16em] text-[var(--color-fg-muted)] font-mono mb-2">
-      {data.date}
+    <div class="project-meta">
+      <span class="text-[0.7rem] uppercase tracking-[0.16em] text-[var(--color-fg-muted)] font-mono">
+        {data.date}
+      </span>
+      {data.status && (
+        <span class="status-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>{data.status}</span>
+        </span>
+      )}
     </div>
 
     <h3
@@ -143,6 +151,10 @@ const href = `/projects/${slug}/`;
   .tech-pill-more {
     color: var(--color-fg-dim);
     font-style: italic;
+  }
+
+  .project-body .project-meta {
+    margin-bottom: 0.6rem;
   }
 
   @media (prefers-reduced-motion: reduce) {

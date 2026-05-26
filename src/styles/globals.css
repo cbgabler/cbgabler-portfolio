@@ -280,6 +280,38 @@ video {
   margin: 0;
 }
 
+.project-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  padding: 0.22rem 0.6rem 0.22rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(215, 63, 9, 0.05);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(215, 63, 9, 0.15);
+  flex-shrink: 0;
+}
+
 /* Fade-up on initial paint. Disabled for reduced motion via media query. */
 @keyframes fade-up {
   from {

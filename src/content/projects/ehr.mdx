@@ -1,0 +1,182 @@
+---
+title: "EHR Module Simulator"
+tagline: "A cross-platform desktop training environment built for the OHSU School of Nursing — letting nursing students practice clinical decision-making and documentation inside a realistic, instructor-authorable Electronic Health Record."
+awards: "Built for OHSU School of Nursing · OSU CS Capstone 2025–2026"
+date: "Oct 2025 – Jun 2026"
+tech:
+  - Electron
+  - React 19
+  - Vite
+  - SQLite
+  - better-sqlite3
+  - IPC / contextBridge
+  - SVG (pure)
+  - PDF Export
+  - GitHub Actions
+  - electron-forge
+repoUrl: "https://github.com/cbgabler/ehr-module-simulator"
+order: 2
+featured: true
+hero: "../../assets/projects/ehr/tech-stack.png"
+heroAlt: "Three-layer architecture diagram of the EHR Module Simulator: a React 19 + Vite frontend, an Electron 32 desktop runtime with IPC bridge, and a SQLite-backed data layer with PDF export."
+---
+
+import { Image } from "astro:assets";
+import techStack from "../../assets/projects/ehr/tech-stack.png";
+import databaseErd from "../../assets/projects/ehr/database-erd.png";
+
+## The brief
+
+Nursing students at **Oregon Health & Science University** practice on
+high-fidelity mannequins in their simulation labs, but they don't get
+realistic practice with the *Electronic Health Record* — the actual
+software that drives every clinical decision in a modern hospital.
+Commercial EHRs (Epic, Cerner) are locked behind enterprise contracts
+and aren't designed for teaching. OHSU's School of Nursing needed an
+EHR-shaped environment that instructors could fully author: custom
+patients, custom vitals trajectories, custom documentation tabs,
+custom quizzes.
+
+We built that. As **project manager and architecture lead** on a
+five-person OSU Computer Science capstone team, I owned the cross-team
+technical decisions — the desktop runtime, the data model, the
+scenario contract between authoring and the simulation engine, and
+the release pipeline that turns a `git push` into a signed installer
+on both Windows and macOS.
+
+## Architecture
+
+A three-layer Electron app. Frontend is React 19 + Vite, served by
+the Electron main process. The main process owns SQLite (via
+`better-sqlite3`) and exposes a narrow IPC surface through a
+`contextBridge` preload — the renderer never touches the database
+directly.
+
+<Image
+  src={techStack}
+  alt="EHR Module Simulator technology stack: React 18 + Vite + React Router in the top layer, Electron 32 with IPC communication in the middle, and SQLite + better-sqlite3 + JSON scenario definitions + PDF export in the bottom layer. Side panel lists Jest, ESLint, GitHub Actions, and Conventional Commits."
+  widths={[480, 720, 960, 1280]}
+  sizes="(min-width: 1024px) 720px, 100vw"
+/>
+
+The constraints that shaped this stack:
+
+- **Offline-first.** Clinical simulations happen in sim labs with
+  flaky or restricted networks. The whole app must run with zero
+  outbound calls, including authentication. SQLite, local file
+  imports, no cloud.
+- **Cross-platform.** OHSU instructors use both macOS and Windows.
+  Electron Forge gives us signed installers for both targets out of
+  one codebase.
+- **Author once, run many times.** Scenarios are the unit of
+  reuse — they need to be exportable as files so an instructor can
+  email a colleague at another nursing school a `.sqlite` and have
+  it Just Work.
+
+## The data model
+
+Six tables, all owned by the Electron main process and accessed through
+typed IPC handlers. Sessions and notes are the
+performance-sensitive paths — a five-minute simulation generates
+hundreds of ticks of vitals state and dozens of student actions, all
+of which need to roll up into a session summary PDF at the end.
+
+<Image
+  src={databaseErd}
+  alt="Database schema for the EHR Module Simulator: USERS (id, username, role, passwordHash) link to SESSIONS (id, scenarioId, userId, started, ended) which fan out to NOTES (sessionId, userId, content, vitalsSnapshot) and SESSION_ACTIONS (sessionId, actionType, actionLabel, details). SCENARIOS hold a JSON definition column and link to QUIZZES."
+  widths={[480, 720, 960, 1280]}
+  sizes="(min-width: 1024px) 720px, 100vw"
+/>
+
+Two design choices that were not obvious going in:
+
+- **`scenarioDefinition` lives as a JSON blob** in the `scenarios`
+  table, not as a normalized set of patient / vitals / medications
+  tables. A scenario is a frozen, versioned snapshot — instructors
+  shouldn't be able to "edit a scenario" mid-run and accidentally
+  shift behavior between two student sessions of the "same"
+  scenario. A blob makes the immutability boundary obvious.
+- **`vitalsSnapshot` is denormalized into the `notes` table.** When
+  a student documents an observation, the exact vitals at that moment
+  get frozen into the note row. Replaying the session a year later
+  for grading shouldn't have to re-derive what the vitals "were" at
+  a given timestamp — they're already there.
+
+## The simulation engine
+
+The interesting feedback loop is on the renderer side. The simulation
+engine ticks at a configurable interval (default 5 s, range 1–60 s)
+and emits a new `vitals` object on each tick. A rolling buffer in
+the React layer keeps the last 100 snapshots in memory and feeds the
+**Vitals Trend Graph** — a pure-SVG chart, no Recharts or D3
+runtime dependency, that re-renders the lines + tooltips + legend on
+every tick.
+
+Six tracked vitals — heart rate, O₂ saturation, respiratory rate,
+temperature, systolic BP, diastolic BP — each mapped to its own
+color and unit through a `VITAL_CONFIG` dictionary. Y-axis
+auto-scales to the visible series, and a legend click filters out
+vitals the student doesn't want to look at.
+
+When the student titrates a medication (e.g., raises a vasopressor
+dose), the engine consults the scenario's medication-effects table on
+the next tick and shifts vitals toward the new target. Optional
+**hold-tick targets** let an instructor say "the session passes when
+systolic BP stays inside 110–130 for three consecutive ticks" — the
+engine auto-completes the session and stamps the result in the
+session summary.
+
+## Scenario authoring
+
+An instructor opens **Create Scenario** and fills out nine
+sub-forms — patient info, vitals, medications, provider orders,
+learning objectives, tags, simulation parameters, metadata, and
+optional **custom tabs**. The custom-tabs system was the
+sleeper-feature: instructors can define their own documentation tabs
+(e.g., *Urine Output*, *Wound Assessment*, *Neuro Check*) with their
+own fields, and those tabs appear inside the simulation UI alongside
+the standard four — *without a single code change in the app*.
+
+All nine sub-forms assemble a single `scenarioDefinition` object that
+gets serialized to JSON and stored in the `scenarios.definition`
+column. The same shape is read back by the simulation engine, the
+quiz authoring tool, the session-summary PDF exporter, and the
+import/export pipeline. One schema, four consumers.
+
+## Release engineering
+
+GitHub Actions runs ESLint and Jest on every PR. Conventional Commits
+plus a CODEOWNERS file gate merges. Pushes to `main` cut a release:
+`electron-forge` produces a Squirrel installer on Windows and a `.dmg`
+on macOS. Electron can't cross-compile, so the matrix runs two
+runners and uploads both artifacts to the GitHub release.
+
+`better-sqlite3` is a native module — every time `npm install` runs
+inside the Electron context, `electron-rebuild` recompiles the binary
+against the right Electron ABI. A `postinstall` hook automates this
+so contributors never see a `MODULE_VERSION` mismatch on their first
+run.
+
+## What I owned
+
+- **Architecture.** The three-layer split, the IPC contract, the
+  scenario JSON shape, the SQLite schema, and the decision to keep
+  the whole runtime offline-first.
+- **Project management.** Sprint planning, scope arbitration with
+  OHSU stakeholders, conventional-commits enforcement, PR
+  template + CODEOWNERS, and the GitHub Actions matrix for signed
+  multi-platform releases.
+- **Documentation.** A `docs/` folder that ships with the repo —
+  installation guide, schema reference, feature-by-feature writeups,
+  and an import/export protocol — so the project can outlive the
+  capstone team and be picked up by the next cohort or by OHSU's
+  internal IT.
+
+## What's next
+
+OHSU has indicated interest in deploying the app to a small cohort
+of senior nursing students in the 2026–2027 academic year. The
+realistic next steps are: an audit log that survives instructor
+account deletion (for grading appeals), a SCORM or LTI export so
+session summaries land in OHSU's LMS automatically, and
+internationalization for OHSU's partner programs.

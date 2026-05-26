@@ -1,0 +1,145 @@
+---
+title: "Sidechain-TML"
+tagline: "A tiny-ML hardware security monitor that watches a target microcontroller for in-progress side-channel attacks and remote code execution — and pulls the kill line before the exploit completes."
+status: "Active research"
+date: "2026 — in progress"
+tech:
+  - ESP32
+  - Raspberry Pi Pico
+  - Tiny ML
+  - Random Forest
+  - 1D-CNN (planned)
+  - TFLite Micro
+  - Python
+  - C/C++
+  - scikit-learn
+  - UART
+repoUrl: "https://github.com/cbgabler/sidechain-tml"
+order: 3
+featured: false
+---
+
+## Thesis
+
+GlassBox, my hackathon project from earlier this year, audits firmware
+*before* it ships — drop in a repo, get a verdict from real silicon
+about whether the binary leaks key material through power or timing.
+That's a pre-deployment pass.
+
+Sidechain-TML is the next question: *what about devices that are
+already in the field?* Once a microcontroller is deployed in a
+medical device, an industrial sensor, or a car, you can't re-audit
+it every time someone publishes a new exploit. You need an
+**in-line defense** — something that watches the chip in real time
+and stops an attack while it's happening.
+
+The thesis is that a separate, isolated co-processor running a small
+ML model on hardware telemetry can recognise the signature of an
+in-progress exploit (side-channel probing, fault injection, ROP-style
+control-flow anomalies) and pull the target's enable line before the
+attack reaches a useful state. The same kind of sideband
+instrumentation GlassBox uses for auditing, repurposed as a
+deployable defense.
+
+## Why a sideband monitor
+
+The Pico does **not share memory, OS, or a bus** with the ESP32 it
+watches. That isolation is the whole point: if the target chip is
+compromised — even ring-0, even with full bus mastery — it has no
+way to lie to the detector. The Pico sees only what it samples
+directly (current trace, timing, UART telemetry from a tamper-evident
+loop on the target), and it speaks back to the target through a
+single open-drain line that can yank the ESP32's `EN` pin to ground.
+
+Threat model assumed:
+
+- The attacker controls the target chip's firmware completely (RCE,
+  flashed payload, malicious update, etc).
+- The attacker cannot tamper with the Pico, the harness wiring, or
+  the kill line.
+- The attacker can read or replay telemetry — so the telemetry alone
+  must not be a trust anchor; the *patterns* in the telemetry are.
+
+This is the same isolation principle the high-assurance hardware
+literature uses for hardware security modules, just on $4 of silicon
+instead of in a TPM.
+
+## Telemetry contract
+
+Each tick of the target's main loop emits one structured line over
+UART to the Pico:
+
+```
+T:<us> H:<bytes> R:<resets>
+```
+
+- `T` — microsecond timestamp of the tick.
+- `H` — heap bytes free.
+- `R` — count of soft resets observed since boot.
+
+That's intentionally minimal. The interesting signal isn't in any one
+field — it's in the *temporal pattern* of how the three move
+together over a sliding window. A healthy device has a tight,
+bounded jitter on `T`, monotonic-ish `H` (with allocator churn), and
+`R` flat. An attack tends to perturb all three at once: latency
+spikes, heap fragmentation, watchdog rescues. That's the shape the
+classifier is learning.
+
+## Model approach
+
+Phase 1 (current): **random forest** on a 32-tick rolling window of
+extracted features (mean, stddev, p95 of inter-tick latency; heap
+delta; reset count; first-derivative of each). Random forests are
+the right baseline here because they're tiny, deterministic, and
+trivially exportable to plain C — no runtime, no quantization, just
+a generated `tree.h` of `if/else` branches that compiles to a few KB.
+
+Phase 2 (planned): **1D-CNN or LSTM** trained on the same windowed
+features but with learned temporal kernels. Compiled to **TFLite
+Micro** and run on the Pico. The hard constraint is the RP2040's
+**264 KB SRAM** and **no FPU** — every quantization decision and
+every operator choice has to respect that envelope. The interesting
+research question I want the paper to answer is whether the
+classification gain from a deeper temporal model is worth its
+inference cost on this class of MCU.
+
+## What ties it to the paper
+
+I'm writing a research paper alongside this project that documents
+the trade-off space: feature-window length vs. inference latency vs.
+detection accuracy across the random-forest and tiny-CNN regimes, on
+a benchmark of synthetic and replayed attack traces.
+
+*Full writeup forthcoming — link will appear here once published.*
+
+## Current status
+
+Honest snapshot from the repo's TODO:
+
+- **ESP32 harness** (`hardware/esp/harness.ino`): in flight. The
+  target emits the `T:` / `H:` / `R:` framed telemetry on each loop
+  iteration. This is the current blocker — without it, the Pico has
+  nothing to window over.
+- **Pico harness** (`hardware/raspberry/harness.ino`): next
+  milestone. Window buffering, feature extraction, model inference,
+  and the EN-pin kill switch live here.
+- **Models** (`models/`): random-forest baseline trains and serves a
+  classifier in Python. The translator that lowers it to embeddable
+  C is the next deliverable on the software side.
+
+The repo is intentionally public from day one — the research
+narrative includes the failed experiments, and I want them
+recoverable from git history rather than rewritten after the fact.
+
+## What I'm learning
+
+The reason this project matters to me is that it sits at the seam
+between three things I want to spend graduate research on: hardware
+security (the threat model and the isolation guarantees), embedded
+systems (the latency and memory envelope), and applied machine
+learning (the temporal classifier and the question of what's
+*deployable* vs. what merely benchmarks well in a notebook).
+
+A defended HSM doesn't help if you can't ship it. A clever model
+doesn't help if you can't fit it in 264 KB of SRAM. The interesting
+work is squarely in the middle.

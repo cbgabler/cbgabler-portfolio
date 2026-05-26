@@ -13,6 +13,8 @@ const projects = defineCollection({
       tagline: z.string(),
       /** Short awards string, e.g. "1st place + Best Agentic Infrastructure — BeaverHacks 2026". */
       awards: z.string().optional(),
+      /** Optional status badge (e.g., "Active research", "WIP"). Renders as a small pill. */
+      status: z.string().optional(),
       /** Display date or range. */
       date: z.string(),
       /** Tech stack pills. Keep short — display gets noisy past ~10. */
