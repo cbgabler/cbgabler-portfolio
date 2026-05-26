@@ -1,0 +1,9 @@
+---
+interface Props {
+  label: string;
+  accent?: boolean;
+}
+const { label, accent = false } = Astro.props;
+---
+
+<span class={`tech-pill${accent ? " tech-pill-accent" : ""}`}>{label}</span>

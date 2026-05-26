@@ -1,0 +1,95 @@
+---
+import "../styles/globals.css";
+import SiteNav from "../components/SiteNav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { SITE } from "../data/site";
+
+interface Props {
+  /** Page-specific title; gets combined with the site name in <title>. */
+  title?: string;
+  /** Page-specific meta description. */
+  description?: string;
+  /** Path of an OG image relative to the site root, or absolute URL. */
+  ogImage?: string;
+  /** Set <html data-page="..."> for page-specific style hooks. */
+  pageId?: string;
+  /** Pass-through canonical override. Auto-derived if absent. */
+  canonical?: string;
+}
+
+const {
+  title,
+  description = SITE.shortDescription,
+  ogImage = "/og-default.png",
+  pageId,
+  canonical,
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — Firmware & Embedded-System Security`;
+const canonicalUrl =
+  canonical ?? new URL(Astro.url.pathname, SITE.url).toString();
+const ogImageUrl = ogImage.startsWith("http")
+  ? ogImage
+  : new URL(ogImage, SITE.url).toString();
+---
+
+<!doctype html>
+<html lang="en" data-page={pageId}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Sitemap link (consumed by crawlers) -->
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Hint browsers about font-display behavior baked into fontsource. -->
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteNav />
+    <main id="main" class="mx-auto w-full max-w-3xl px-5 sm:px-6 pb-24">
+      <slot />
+    </main>
+    <SiteFooter />
+
+    <style>
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        background: var(--color-accent);
+        color: var(--color-bg);
+        padding: 0.5rem 0.85rem;
+        font-weight: 600;
+        z-index: 100;
+      }
+      .skip-link:focus {
+        left: 1rem;
+        top: 1rem;
+      }
+    </style>
+  </body>
+</html>

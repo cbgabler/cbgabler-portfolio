@@ -1,0 +1,48 @@
+---
+import { SITE } from "../data/site";
+// A clean URL: /cv → static PDF. We render a minimal HTML shell with
+// a meta refresh + a JS redirect + a visible link as a fallback for
+// users without JS or with the meta refresh disabled.
+const target = SITE.cv.file;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{SITE.cv.label} — {SITE.name}</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={new URL("/cv", SITE.url).toString()} />
+    <meta name="robots" content="noindex" />
+    <style>
+      html {
+        background: #0b0c0e;
+        color: #e7e5e0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          Roboto, sans-serif;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        margin: 0;
+        padding: 2rem;
+      }
+      a {
+        color: #e8643a;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>
+        If the download didn't start,
+        <a href={target}>open the {SITE.cv.label} directly</a>.
+      </p>
+    </main>
+    <script is:inline define:vars={{ target }}>
+      window.location.replace(target);
+    </script>
+  </body>
+</html>

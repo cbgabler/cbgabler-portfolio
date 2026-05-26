@@ -1,0 +1,22 @@
+---
+import { SITE } from "../data/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="mx-auto w-full max-w-3xl px-5 sm:px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <p class="text-sm text-[var(--color-fg-muted)]">
+      © {year} {SITE.name}
+    </p>
+    <p class="text-xs text-[var(--color-fg-dim)] font-mono">
+      Built with Astro · Hosted on Cloudflare Pages
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    margin-top: 4rem;
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+title: "Catalytica"
+tagline: "A real-time, AI-driven wildfire monitoring platform that fuses NASA satellite hotspots with weather and population data."
+awards: "1st place + Google sponsor prize — BeaverHacks April 2025"
+date: "April 2025"
+tech:
+  - React
+  - TypeScript
+  - Firebase
+  - Cloud Functions
+  - Firestore
+  - Leaflet
+  - NASA FIRMS
+  - OpenWeather
+repoUrl: "https://github.com/HackerManOSU/Catalytica"
+order: 2
+featured: false
+---
+
+{/* TODO: when you have a screenshot of the live heatmap, drop it into
+    src/assets/projects/catalytica/ and add a hero entry to the frontmatter
+    above, plus an <Image /> import below. */}
+
+## What it is
+
+Catalytica is a real-time wildfire monitoring platform built to make
+satellite fire data legible to non-experts. It pulls NASA FIRMS VIIRS
+satellite detections every minute, enriches each hotspot with live
+weather conditions, and surfaces it all on an interactive map.
+
+The project won 1st place and Google's sponsor prize at BeaverHacks
+in April 2025.
+
+## How it works
+
+The system has two halves: a Firebase-hosted backend that ingests and
+enriches data, and a React front-end that renders it.
+
+### Backend (Firebase)
+
+- A scheduled **Cloud Function** runs every minute, hits the NASA FIRMS
+  API for VIIRS detections, and writes new hotspots to **Firestore**.
+- A second function enriches each hotspot with **OpenWeather** data —
+  current temperature, wind, and humidity at the hotspot location.
+- Firestore acts as the source of truth for the front-end; clients
+  subscribe to changes and update the map in real time.
+
+### Front-end (React + TypeScript)
+
+- **Leaflet** map with a pulsing severity marker per hotspot.
+- Four-tier severity classification based on the satellite's reported
+  **Fire Radiative Power (FRP)** — the higher the FRP, the larger and
+  warmer the marker.
+- A Haversine-distance filter shows only hotspots within a configurable
+  proximity (default 15 miles) of the user's location, so the map
+  doesn't get drowned out by detections elsewhere.
+- Real-time updates: when Firestore receives a new hotspot, it appears
+  on the map without a page reload.
+
+## Why it matters
+
+Most public wildfire dashboards either show too much (every detection
+globally, with no severity context) or too little (lagged county-level
+summaries). Catalytica's value is in the middle layer: take the raw
+satellite signal, attach the local conditions that make a hotspot
+dangerous, and present it at a useful zoom level.
+
+It's also a useful demonstration of how cheap real-time GIS can be when
+you lean on managed services — the entire backend is a few Cloud
+Functions and a Firestore collection, no servers to manage.

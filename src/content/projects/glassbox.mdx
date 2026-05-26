@@ -1,0 +1,136 @@
+---
+title: "GlassBox"
+tagline: "An ESP32-based embedded security audit pipeline that combines static analysis with side-channel attack confirmation, orchestrated end-to-end by a multi-agent LLM system."
+awards: "1st place + Best Agentic Infrastructure — BeaverHacks 2026"
+date: "May 2026"
+tech:
+  - C/C++
+  - Go
+  - Python
+  - ESP32
+  - Raspberry Pi Pico
+  - INA169
+  - MCP
+  - Claude
+  - GPT
+  - Nemotron
+repoUrl: "https://github.com/cbgabler/glassbox"
+order: 1
+featured: true
+hero: "../../assets/projects/glassbox/architecture.png"
+heroAlt: "GlassBox platform architecture: ESP32 target, Raspberry Pi Pico bridge, INA169 shunt amplifier, and a Go-based multi-agent orchestrator."
+---
+
+import { Image } from "astro:assets";
+import architecture from "../../assets/projects/glassbox/architecture.png";
+import espPinout from "../../assets/projects/glassbox/esp32-pinout.jpg";
+import picoPinout from "../../assets/projects/glassbox/pico-pinout.svg";
+
+{/* The Pico pinout is a vector SVG, rendered directly via <img> rather than
+    Astro's <Image>, which would duplicate the file once per srcset width. */}
+
+## What it is
+
+GlassBox is an end-to-end audit pipeline for embedded C/C++ that doesn't
+just *predict* whether code leaks — it flashes the code onto real silicon
+and **confirms** the leak by measuring the power trace. A multi-agent LLM
+orchestrator drives the entire flow: lint, build, flash, capture, analyze,
+report.
+
+The system was built end-to-end in a 48-hour window at BeaverHacks 2026,
+where it won 1st place overall and the Best Agentic Infrastructure award.
+
+## Architecture
+
+<Image
+  src={architecture}
+  alt="GlassBox platform architecture: a 6-stage pipeline flowing from user C/C++ through static analysis, ESP32 flashing via a Raspberry Pi Pico bridge, INA169-mediated power capture, and CPA / TVLA confirmation, all orchestrated by an MCP-based agent system."
+  widths={[480, 720, 960, 1200]}
+  sizes="(min-width: 960px) 880px, 100vw"
+  loading="eager"
+/>
+
+The pipeline runs in **six stages** with hardware confirmation at the end:
+
+1. **Static lint** — a custom 6-rule analyzer catches branch-on-secret,
+   variable-time compares, and secret-indexed table reads before code
+   ever reaches silicon.
+2. **Compile** — user C/C++ is built into an ESP32 firmware image.
+3. **Flash** — a custom USB↔UART0 bridge auto-flashes the ESP32 through
+   the Raspberry Pi Pico, with EN/GPIO0 reset translation handled in
+   firmware on the Pico itself.
+4. **Capture** — power traces are sampled from an INA169 shunt amplifier
+   through the Pico's ADC at hardware-bounded rates.
+5. **Analyze** — Test Vector Leakage Assessment (TVLA) on the captured
+   traces flags timing leaks at |t| = 4.5 over a 1,000-trace run.
+6. **Confirm** — for leaks that look real, a 256-candidate Correlation
+   Power Analysis (CPA) attempts to recover AES-128 round keys.
+
+End-to-end audit time per target: **~3–6 minutes**.
+
+## Agent orchestration
+
+The orchestrator is a **multi-agent system over the Model Context Protocol
+(MCP)**, written in Go. Six MCP servers expose **15+ tools** to an LLM
+driver (Claude, GPT, and Nemotron all work as the orchestrator).
+
+The agents can:
+
+- Run any of five software scanners (static analysis, syntax / type
+  checks, linter rules, secret detectors)
+- Drive the hardware confirmation step (flash, capture, TVLA, CPA)
+- Read and reason over the captured trace data
+- Generate a structured audit report with severity, evidence, and the
+  exact source location of the leak
+
+The MCP design is the reason this works at all: each tool is a small,
+testable surface that the LLM can compose, and the orchestrator never
+sees raw hardware — only typed tool calls.
+
+## Hardware
+
+The capture rig is intentionally cheap. ESP32 as the target, Raspberry Pi
+Pico as the bridge and ADC, INA169 high-side current sense amplifier
+between Vcc and the ESP32. Everything you'd need is under $30.
+
+<figure>
+  <Image
+    src={espPinout}
+    alt="ESP32 pinout used by GlassBox: power lines for INA169 measurement, EN and GPIO0 for reset/bootloader, UART0 for flashing."
+    widths={[480, 720, 960]}
+    sizes="(min-width: 720px) 480px, 100vw"
+    loading="lazy"
+  />
+  <figcaption>ESP32 pin assignments — power lines tapped for INA169 measurement; EN and GPIO0 wired into the Pico for reset/boot control.</figcaption>
+</figure>
+
+<figure>
+  <img
+    src={picoPinout.src}
+    width={picoPinout.width}
+    height={picoPinout.height}
+    alt="Raspberry Pi Pico pinout used by GlassBox: USB to host, UART0 to ESP32, ADC0 to INA169 output."
+    loading="lazy"
+    decoding="async"
+  />
+  <figcaption>Raspberry Pi Pico — USB to host, UART0 to ESP32 for flashing, ADC0 to INA169 for capture.</figcaption>
+</figure>
+
+## Results
+
+On the BeaverHacks 2026 demo benchmark:
+
+- **6/6** intentionally-leaky AES implementations flagged by static
+  analysis, confirmed by TVLA, and broken by CPA in under 6 minutes each
+- **0/3** false positives on constant-time reference implementations
+- Round-key recovery accuracy on the confirmed leaky targets: full
+  AES-128 first-round key recovered from ~1,000 traces
+
+## What I'd build next
+
+The current orchestrator is a one-shot pipeline. The next step is a
+**differential-fuzzing loop** where the LLM proposes inputs that should
+maximize leakage according to the static model, then captures the actual
+power traces to either reinforce or correct the model. That closes the
+loop between static and dynamic analysis in a way most academic tools
+don't.

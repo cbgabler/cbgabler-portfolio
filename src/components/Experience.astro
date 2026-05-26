@@ -1,0 +1,140 @@
+---
+import { SITE } from "../data/site";
+---
+
+<section id="experience" class="py-12 sm:py-16" aria-labelledby="experience-heading">
+  <header class="mb-8">
+    <h2
+      id="experience-heading"
+      class="font-display text-2xl sm:text-3xl font-semibold text-[var(--color-fg-strong)]"
+    >
+      Experience
+    </h2>
+  </header>
+
+  <ol class="space-y-7">
+    {SITE.experience.map((item) => (
+      <li class="experience-row">
+        <div class="experience-date">
+          <span>{item.start}</span>
+          <span class="text-[var(--color-fg-dim)]"> – </span>
+          <span class={item.isCurrent ? "text-[var(--color-accent-soft)]" : ""}>
+            {item.end}
+          </span>
+          {item.isCurrent && (
+            <span class="experience-tag tag-current">Current</span>
+          )}
+          {item.isFuture && (
+            <span class="experience-tag tag-future">Incoming</span>
+          )}
+        </div>
+        <div class="experience-body">
+          <h3 class="experience-role">{item.role}</h3>
+          <div class="experience-org">{item.org}</div>
+          <p class="experience-summary">{item.summary}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  {SITE.education.length > 0 && (
+    <div class="mt-12">
+      <h3 class="font-display text-lg font-semibold text-[var(--color-fg-strong)] mb-4">
+        Education
+      </h3>
+      <ol class="space-y-5">
+        {SITE.education.map((edu) => (
+          <li class="experience-row">
+            <div class="experience-date">
+              <span>{edu.start}</span>
+              <span class="text-[var(--color-fg-dim)]"> – </span>
+              <span>{edu.end}</span>
+            </div>
+            <div class="experience-body">
+              <h4 class="experience-role">{edu.school}</h4>
+              <div class="experience-org">{edu.degree}</div>
+              <p class="experience-summary">{edu.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+</section>
+
+<style>
+  .experience-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 1.5rem;
+    align-items: baseline;
+  }
+
+  .experience-date {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-fg-muted);
+    letter-spacing: 0.02em;
+    line-height: 1.55;
+    padding-top: 0.15rem;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .experience-body {
+    min-width: 0;
+  }
+
+  .experience-role {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--color-fg-strong);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .experience-org {
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+    color: var(--color-fg);
+  }
+
+  .experience-summary {
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+    color: var(--color-fg-muted);
+    line-height: 1.6;
+    max-width: 60ch;
+  }
+
+  .experience-tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    margin-left: 0.25rem;
+  }
+
+  .tag-current {
+    color: var(--color-accent-soft);
+  }
+
+  .tag-future {
+    color: var(--color-fg-muted);
+  }
+
+  @media (max-width: 640px) {
+    .experience-row {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+  }
+</style>

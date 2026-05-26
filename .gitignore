@@ -1,20 +1,31 @@
-node_modules
-dist
-dist-ssr
-*.local
+# build output
+dist/
+.astro/
+.output/
 
+# node
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment
+.env
+.env.local
+.env.*.local
+.env*.local
+
+# editor / OS
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
 .idea
-*.log
 
-.env
-.env.local
-.env.*.local
+# host configs that may contain secrets / project ids
+.vercel/
+.wrangler/
 
+# type info
 *.tsbuildinfo
-vite.config.d.ts
-vite.config.js
-.vercel
-.env*.local

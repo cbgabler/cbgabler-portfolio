@@ -1,0 +1,208 @@
+---
+import { Icon } from "astro-icon/components";
+import { SITE } from "../data/site";
+
+type Row = {
+  key: string;
+  label: string;
+  value: string;
+  href?: string;
+  icon: string;
+  external?: boolean;
+};
+
+const rows: Row[] = [];
+
+if (SITE.contact.email) {
+  rows.push({
+    key: "email",
+    label: "Email",
+    value: SITE.contact.email,
+    href: `mailto:${SITE.contact.email}`,
+    icon: "lucide:mail",
+  });
+}
+if (SITE.contact.emailAcademic) {
+  rows.push({
+    key: "email-academic",
+    label: "Academic email",
+    value: SITE.contact.emailAcademic,
+    href: `mailto:${SITE.contact.emailAcademic}`,
+    icon: "lucide:graduation-cap",
+  });
+}
+if (SITE.contact.github) {
+  rows.push({
+    key: "github",
+    label: "GitHub",
+    value: `@${SITE.contact.github.handle}`,
+    href: SITE.contact.github.url,
+    icon: "lucide:github",
+    external: true,
+  });
+}
+if (SITE.contact.linkedin) {
+  rows.push({
+    key: "linkedin",
+    label: "LinkedIn",
+    value: `/in/${SITE.contact.linkedin.handle}`,
+    href: SITE.contact.linkedin.url,
+    icon: "lucide:linkedin",
+    external: true,
+  });
+}
+if (SITE.contact.scholar) {
+  rows.push({
+    key: "scholar",
+    label: "Google Scholar",
+    value: "Profile",
+    href: SITE.contact.scholar.url,
+    icon: "lucide:book-open",
+    external: true,
+  });
+}
+---
+
+<section id="contact" class="py-12 sm:py-16" aria-labelledby="contact-heading">
+  <header class="mb-6">
+    <h2
+      id="contact-heading"
+      class="font-display text-2xl sm:text-3xl font-semibold text-[var(--color-fg-strong)]"
+    >
+      Contact
+    </h2>
+    <p class="text-sm text-[var(--color-fg-muted)] mt-2 max-w-[55ch]">
+      Reach out about graduate research positions, embedded-security
+      collaborations, or interesting firmware. Email is fastest.
+    </p>
+  </header>
+
+  <address class="not-italic contact-card">
+    <ul class="contact-list">
+      {rows.map((row) => (
+        <li class="contact-row">
+          <Icon name={row.icon} class="contact-icon" />
+          <div class="contact-line">
+            <span class="contact-label">{row.label}</span>
+            {row.href ? (
+              <a
+                href={row.href}
+                target={row.external ? "_blank" : undefined}
+                rel={row.external ? "noreferrer" : undefined}
+                class="contact-value"
+              >
+                {row.value}
+              </a>
+            ) : (
+              <span class="contact-value">{row.value}</span>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    {SITE.cv?.file && (
+      <a href="/cv" class="cv-cta">
+        <Icon name="lucide:file-down" class="w-4 h-4" />
+        <span>Download {SITE.cv.label}</span>
+      </a>
+    )}
+  </address>
+</section>
+
+<style>
+  .contact-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.4rem 1.5rem;
+  }
+
+  .contact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .contact-row {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    gap: 0.85rem;
+    align-items: baseline;
+  }
+
+  .contact-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-fg-muted);
+    position: relative;
+    top: 0.15rem;
+  }
+
+  .contact-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  .contact-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    flex-shrink: 0;
+    min-width: 7rem;
+  }
+
+  .contact-value {
+    color: var(--color-fg);
+    word-break: break-word;
+  }
+
+  a.contact-value {
+    color: var(--color-fg);
+    transition: color 120ms ease;
+  }
+
+  a.contact-value:hover {
+    color: var(--color-accent-soft);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .cv-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 140ms ease, border-color 140ms ease;
+  }
+
+  .cv-cta:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent-soft);
+  }
+
+  @media (max-width: 480px) {
+    .contact-label {
+      min-width: 5.5rem;
+    }
+  }
+</style>

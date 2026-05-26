@@ -1,0 +1,126 @@
+---
+import { Icon } from "astro-icon/components";
+import { SITE } from "../data/site";
+---
+
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="text-xs uppercase tracking-[0.18em] text-[var(--color-fg-muted)] font-mono mb-5 fade-up">
+    {SITE.contact.location}
+  </div>
+
+  <h1
+    id="hero-heading"
+    class="font-display font-semibold leading-[1.02] text-[var(--color-fg-strong)] fade-up"
+    style="font-size: clamp(2.5rem, 7vw, 4.5rem); animation-delay: 40ms;"
+  >
+    {SITE.name}
+  </h1>
+
+  <hr class="accent-rule mt-6 mb-6" />
+
+  <p
+    class="text-lg sm:text-xl text-[var(--color-fg)] max-w-[58ch] leading-[1.55] fade-up"
+    style="animation-delay: 120ms;"
+  >
+    {SITE.tagline}
+  </p>
+
+  <p
+    class="text-sm text-[var(--color-fg-muted)] max-w-[60ch] mt-3 leading-relaxed fade-up"
+    style="animation-delay: 180ms;"
+  >
+    {SITE.status}
+  </p>
+
+  <div
+    class="mt-8 flex flex-wrap gap-3 fade-up"
+    style="animation-delay: 240ms;"
+  >
+    {SITE.cv?.file && (
+      <a
+        href="/cv"
+        class="hero-cta hero-cta-primary"
+      >
+        <Icon name="lucide:file-text" class="w-4 h-4" />
+        <span>{SITE.cv.label}</span>
+      </a>
+    )}
+    {SITE.contact.github && (
+      <a
+        href={SITE.contact.github.url}
+        target="_blank"
+        rel="noreferrer"
+        class="hero-cta"
+      >
+        <Icon name="lucide:github" class="w-4 h-4" />
+        <span>GitHub</span>
+      </a>
+    )}
+    {SITE.contact.linkedin && (
+      <a
+        href={SITE.contact.linkedin.url}
+        target="_blank"
+        rel="noreferrer"
+        class="hero-cta"
+      >
+        <Icon name="lucide:linkedin" class="w-4 h-4" />
+        <span>LinkedIn</span>
+      </a>
+    )}
+    {SITE.contact.email && (
+      <a
+        href={`mailto:${SITE.contact.email}`}
+        class="hero-cta"
+      >
+        <Icon name="lucide:mail" class="w-4 h-4" />
+        <span>Email</span>
+      </a>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 4rem 0 4.5rem;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-fg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 140ms ease, border-color 140ms ease,
+      background-color 140ms ease, transform 140ms ease;
+  }
+
+  .hero-cta:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-soft);
+    background: rgba(215, 63, 9, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .hero-cta-primary {
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border-color: var(--color-accent);
+  }
+
+  .hero-cta-primary:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-bg);
+    border-color: var(--color-accent-soft);
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 2.5rem 0 3rem;
+    }
+  }
+</style>

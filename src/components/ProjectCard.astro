@@ -1,0 +1,138 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import TechPill from "./TechPill.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  /** When true, renders a larger headline card. */
+  featured?: boolean;
+}
+
+const { project, featured = false } = Astro.props;
+const { data, slug } = project;
+const href = `/projects/${slug}/`;
+---
+
+<a
+  href={href}
+  class={`project-card${featured ? " project-card-featured" : ""}`}
+  aria-labelledby={`project-${slug}-title`}
+>
+  {data.hero && (
+    <div class="project-hero">
+      <Image
+        src={data.hero}
+        alt={data.heroAlt ?? `${data.title} hero image`}
+        widths={featured ? [480, 720, 960, 1200] : [320, 480, 720]}
+        sizes={
+          featured
+            ? "(min-width: 960px) 880px, (min-width: 640px) 90vw, 100vw"
+            : "(min-width: 640px) 480px, 100vw"
+        }
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  )}
+
+  <div class="project-body">
+    <div class="text-[0.7rem] uppercase tracking-[0.16em] text-[var(--color-fg-muted)] font-mono mb-2">
+      {data.date}
+    </div>
+
+    <h3
+      id={`project-${slug}-title`}
+      class="font-display font-semibold text-[var(--color-fg-strong)] leading-tight group-hover:text-[var(--color-accent-soft)]"
+      style={featured ? "font-size: clamp(1.75rem, 3.5vw, 2.25rem);" : "font-size: 1.4rem;"}
+    >
+      {data.title}
+    </h3>
+
+    <p class="mt-2 text-[var(--color-fg)] leading-relaxed" style={featured ? "font-size: 1.025rem;" : "font-size: 0.95rem;"}>
+      {data.tagline}
+    </p>
+
+    {data.awards && (
+      <div class="award-strip mt-3">
+        <Icon name="lucide:award" class="w-3.5 h-3.5 text-[var(--color-accent-soft)]" />
+        <strong>{data.awards}</strong>
+      </div>
+    )}
+
+    <div class="mt-4 flex flex-wrap gap-1.5">
+      {data.tech.slice(0, featured ? 10 : 6).map((t) => <TechPill label={t} />)}
+      {data.tech.length > (featured ? 10 : 6) && (
+        <span class="tech-pill tech-pill-more">
+          +{data.tech.length - (featured ? 10 : 6)}
+        </span>
+      )}
+    </div>
+
+    <div class="mt-5 inline-flex items-center gap-1.5 text-sm text-[var(--color-accent-soft)] font-medium project-cta">
+      <span>Read case study</span>
+      <Icon name="lucide:arrow-right" class="w-4 h-4 transition-transform project-arrow" />
+    </div>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+    color: inherit;
+    transition: border-color 160ms ease, transform 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .project-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .project-card:hover .project-arrow {
+    transform: translateX(3px);
+  }
+
+  .project-hero {
+    background: var(--color-bg-soft);
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .project-hero :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .project-card-featured .project-hero :global(img) {
+    aspect-ratio: 16 / 8;
+  }
+
+  .project-body {
+    padding: 1.25rem 1.35rem 1.4rem;
+  }
+
+  .project-card-featured .project-body {
+    padding: 1.6rem 1.8rem 1.8rem;
+  }
+
+  .tech-pill-more {
+    color: var(--color-fg-dim);
+    font-style: italic;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .project-arrow {
+      transition: none;
+    }
+  }
+</style>

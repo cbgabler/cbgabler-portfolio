@@ -1,0 +1,82 @@
+---
+import { NAV_LINKS, SITE } from "../data/site";
+---
+
+<header class="site-nav">
+  <div class="mx-auto w-full max-w-3xl px-5 sm:px-6 flex items-center justify-between py-4">
+    <a href="/" class="brand">
+      <span class="brand-name">{SITE.name}</span>
+    </a>
+    <nav aria-label="Primary" class="hidden sm:block">
+      <ul class="flex items-center gap-1">
+        {NAV_LINKS.map((l) => (
+          <li>
+            <a href={l.href} class="nav-link">
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11, 12, 14, 0.72);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 200ms ease;
+  }
+
+  /* Hairline border appears once the page has scrolled — kept subtle. */
+  .site-nav::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 1px;
+    background: var(--color-border);
+    opacity: 0.6;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    color: var(--color-fg-strong);
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.005em;
+    padding: 0.15rem 0.1rem;
+    transition: color 120ms ease;
+  }
+
+  .brand:hover {
+    color: var(--color-accent-soft);
+  }
+
+  .brand-name {
+    color: inherit;
+  }
+
+  .nav-link {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-fg-muted);
+    padding: 0.4rem 0.65rem;
+    border-radius: 4px;
+    transition: color 120ms ease, background-color 120ms ease;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: var(--color-fg-strong);
+    background: rgba(255, 255, 255, 0.04);
+  }
+</style>

@@ -1,0 +1,303 @@
+@import "tailwindcss";
+
+/* Self-hosted variable fonts. */
+@import "@fontsource-variable/fraunces/index.css";
+@import "@fontsource-variable/inter/index.css";
+
+/* =========================================================
+   Design tokens.
+   Single source of truth for palette + type. Edit here.
+   ========================================================= */
+@theme {
+  /* Type */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, Cambria,
+    "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo,
+    Consolas, monospace;
+
+  /* Colors — dark default, paper-white on near-black */
+  --color-bg: #0b0c0e;
+  --color-bg-soft: #111316;
+  --color-surface: #161a1f;
+  --color-border: #232931;
+  --color-border-strong: #2d343d;
+
+  --color-fg: #e7e5e0;
+  --color-fg-strong: #f4f2ed;
+  --color-fg-muted: #8a8783;
+  --color-fg-dim: #5a5854;
+
+  /* Accent — OSU Beaver Orange */
+  --color-accent: #d73f09;
+  --color-accent-soft: #e8643a;
+  --color-accent-glow: rgba(215, 63, 9, 0.18);
+}
+
+/* =========================================================
+   Base reset / element styles.
+   ========================================================= */
+html {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  min-height: 100dvh;
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+/* Focus ring — visible, accent-tinted, accessible. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* =========================================================
+   Type scale.
+   ========================================================= */
+.font-display {
+  font-family: var(--font-serif);
+  font-feature-settings: "ss01", "ss02";
+  letter-spacing: -0.015em;
+}
+
+/* =========================================================
+   Prose (project detail pages).
+   ========================================================= */
+.prose {
+  color: var(--color-fg);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 65ch;
+}
+
+.prose > * + * {
+  margin-top: 1.1rem;
+}
+
+.prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fg-strong);
+  margin-top: 2.5rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.25;
+}
+
+.prose h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-fg-strong);
+  margin-top: 1.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.prose p {
+  color: var(--color-fg);
+}
+
+.prose strong {
+  color: var(--color-fg-strong);
+  font-weight: 600;
+}
+
+.prose a {
+  color: var(--color-accent-soft);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  color: var(--color-accent);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  color: var(--color-fg);
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li::marker {
+  color: var(--color-fg-dim);
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.1em 0.4em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-fg-strong);
+}
+
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+
+.prose pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 1rem;
+  color: var(--color-fg-muted);
+  font-style: italic;
+}
+
+.prose figure {
+  margin: 2rem 0;
+}
+
+.prose figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+
+.prose img {
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 2.5rem 0;
+}
+
+/* =========================================================
+   Reusable atoms.
+   ========================================================= */
+.tech-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.2rem 0.55rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-fg-muted);
+}
+
+.tech-pill-accent {
+  color: var(--color-accent-soft);
+  border-color: rgba(215, 63, 9, 0.35);
+  background: rgba(215, 63, 9, 0.08);
+}
+
+.award-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--color-fg-muted);
+}
+
+.award-strip strong {
+  color: var(--color-accent-soft);
+  font-weight: 600;
+}
+
+.accent-rule {
+  width: 3rem;
+  height: 1px;
+  background: var(--color-accent);
+  border: 0;
+  margin: 0;
+}
+
+/* Fade-up on initial paint. Disabled for reduced motion via media query. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 480ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up {
+    animation: none;
+  }
+}

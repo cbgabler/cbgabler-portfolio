@@ -1,0 +1,99 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import TechPill from "../components/TechPill.astro";
+import { Icon } from "astro-icon/components";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+
+const description = data.tagline.length > 155
+  ? data.tagline.slice(0, 152) + "…"
+  : data.tagline;
+---
+
+<BaseLayout
+  title={data.title}
+  description={description}
+  pageId="project-detail"
+>
+  <article class="pt-10 sm:pt-16">
+    <a
+      href="/#projects"
+      class="inline-flex items-center gap-1.5 text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-accent-soft)] transition-colors mb-8"
+    >
+      <Icon name="lucide:arrow-left" class="w-4 h-4" />
+      <span>All projects</span>
+    </a>
+
+    <header class="mb-10">
+      <div class="text-xs uppercase tracking-wider text-[var(--color-fg-muted)] mb-3 font-mono">
+        {data.date}
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl font-semibold leading-[1.05] text-[var(--color-fg-strong)] mb-4">
+        {data.title}
+      </h1>
+      <p class="text-lg text-[var(--color-fg)] max-w-[60ch] leading-relaxed">
+        {data.tagline}
+      </p>
+
+      {data.awards && (
+        <div class="award-strip mt-5">
+          <Icon name="lucide:award" class="w-4 h-4 text-[var(--color-accent-soft)]" />
+          <strong>{data.awards}</strong>
+        </div>
+      )}
+
+      <div class="mt-6 flex flex-wrap gap-1.5">
+        {data.tech.map((t) => <TechPill label={t} />)}
+      </div>
+
+      {(data.repoUrl || data.liveUrl) && (
+        <div class="mt-6 flex flex-wrap gap-3">
+          {data.repoUrl && (
+            <a
+              href={data.repoUrl}
+              target="_blank"
+              rel="noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent-soft)] text-sm transition-colors"
+            >
+              <Icon name="lucide:github" class="w-4 h-4" />
+              <span>Repository</span>
+            </a>
+          )}
+          {data.liveUrl && (
+            <a
+              href={data.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent-soft)] text-sm transition-colors"
+            >
+              <Icon name="lucide:external-link" class="w-4 h-4" />
+              <span>Live demo</span>
+            </a>
+          )}
+        </div>
+      )}
+    </header>
+
+    <hr class="accent-rule mb-10" />
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    <hr class="border-[var(--color-border)] my-12" />
+
+    <a
+      href="/#projects"
+      class="inline-flex items-center gap-1.5 text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-accent-soft)] transition-colors"
+    >
+      <Icon name="lucide:arrow-left" class="w-4 h-4" />
+      <span>All projects</span>
+    </a>
+  </article>
+</BaseLayout>

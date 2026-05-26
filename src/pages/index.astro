@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import FeaturedProjects from "../components/FeaturedProjects.astro";
+import About from "../components/About.astro";
+import Experience from "../components/Experience.astro";
+import Contact from "../components/Contact.astro";
+---
+
+<BaseLayout pageId="home">
+  <Hero />
+  <hr class="border-[var(--color-border)]" />
+  <FeaturedProjects />
+  <hr class="border-[var(--color-border)]" />
+  <About />
+  <hr class="border-[var(--color-border)]" />
+  <Experience />
+  <hr class="border-[var(--color-border)]" />
+  <Contact />
+</BaseLayout>
