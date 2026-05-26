@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#0f172a"/>
+  <rect width="64" height="64" rx="12" fill="#08090b"/>
+  <rect x="2" y="2" width="60" height="60" rx="10" fill="none" stroke="#1f242c" stroke-width="2"/>
   <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle"
-        font-family="ui-sans-serif, system-ui" font-weight="700"
-        font-size="28" fill="#f8fafc">CG</text>
+        font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace"
+        font-weight="700" font-size="34" fill="#9eff8a">$_</text>
 </svg>

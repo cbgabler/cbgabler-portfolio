@@ -1,0 +1,60 @@
+.about-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem 1.1rem;
+}
+
+.about-header {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+  margin-bottom: 0.85rem;
+}
+
+.about-hash {
+  color: var(--accent-dim);
+  font-weight: 600;
+}
+
+.about-body p {
+  margin: 0 0 0.85rem;
+  line-height: 1.7;
+  color: var(--text);
+  font-size: 0.98rem;
+}
+
+.about-body p:last-child {
+  margin-bottom: 0;
+}
+
+.about-footer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.about-key {
+  color: var(--accent-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.about-sep {
+  color: var(--dim);
+}
+
+.about-value {
+  color: var(--text);
+}

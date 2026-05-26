@@ -1,23 +1,15 @@
 import { Link, useParams } from "react-router-dom";
-import { useNow, useProjects, type Project } from "../hooks/useProjects";
+import { useNow, type Project } from "../hooks/useProjects";
+import { useProjectsContext } from "../contexts/ProjectsContext";
 import { getProjectContent, type ProjectContent } from "../data/project-content";
 import Terminal from "./Terminal";
-import {
-  fallbackSha,
-  languageColor,
-  timeAgo,
-} from "./Projects";
+import { fallbackSha, timeAgo } from "./Projects";
 import "./ProjectDetail.css";
 
-type Props = {
-  username: string;
-  endpoint?: string;
-};
-
-export default function ProjectDetail({ username, endpoint }: Props) {
+export default function ProjectDetail() {
   const { name = "" } = useParams<{ name: string }>();
   const { projects, loading, error, refresh, refreshing, fetchedAt } =
-    useProjects({ username, endpoint });
+    useProjectsContext();
   const now = useNow();
 
   const project = projects.find((p) => p.name === name);

@@ -1,23 +1,18 @@
 import { Link } from "react-router-dom";
-import { useNow, useProjects, type Project } from "../hooks/useProjects";
+import { useNow, type Project } from "../hooks/useProjects";
+import { useProjectsContext } from "../contexts/ProjectsContext";
 import Terminal from "./Terminal";
 import "./Projects.css";
 
 type Props = {
-  username: string;
-  endpoint?: string;
+  /** Cap the number shown. Doesn't refetch — purely a display cap. */
   limit?: number;
-  pollMs?: number;
 };
 
-export default function Projects({
-  username,
-  endpoint,
-  limit = 12,
-  pollMs = 10 * 60_000,
-}: Props) {
-  const { projects, loading, error, refreshing, fetchedAt, refresh } =
-    useProjects({ username, endpoint, limit, pollMs });
+export default function Projects({ limit }: Props = {}) {
+  const { projects: all, loading, error, refreshing, fetchedAt, refresh } =
+    useProjectsContext();
+  const projects = typeof limit === "number" ? all.slice(0, limit) : all;
   const now = useNow();
 
   const showStale = Boolean(error) && projects.length > 0;

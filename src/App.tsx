@@ -1,89 +1,88 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Projects from "./components/Projects";
 import ProjectDetail from "./components/ProjectDetail";
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Skills from "./components/Skills";
+import Contact from "./components/Contact";
+import SectionHeading from "./components/SectionHeading";
+import { NAV_LINKS, SITE } from "./data/site-config";
+import { ProjectsProvider } from "./contexts/ProjectsContext";
 import "./App.css";
 
-const GITHUB_USERNAME = "cbgabler";
 const PROJECTS_ENDPOINT = import.meta.env.PROD ? "/api/projects" : undefined;
 
 export default function App() {
   return (
-    <div className="page">
-      <header className="nav">
-        <Link to="/" className="brand">
-          CG
-        </Link>
-        <nav>
-          <a href="/#about">About</a>
-          <Link to="/#projects">Projects</Link>
-          <a href="/#contact">Contact</a>
-        </nav>
-      </header>
+    <ProjectsProvider username={SITE.username} endpoint={PROJECTS_ENDPOINT}>
+      <ScrollToHashOrTop />
+      <div className="page">
+        <SiteHeader />
+        <main className="page-main">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects/:name" element={<ProjectDetailRoute />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <SiteFooter />
+      </div>
+    </ProjectsProvider>
+  );
+}
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/projects/:name"
-            element={
-              <ProjectDetailRoute
-                username={GITHUB_USERNAME}
-                endpoint={PROJECTS_ENDPOINT}
-              />
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
+function SiteHeader() {
+  return (
+    <header className="nav">
+      <Link to="/" className="brand">
+        <span className="brand-prompt">~/</span>
+        <span className="brand-initials">{SITE.initials.toLowerCase()}</span>
+        <span className="brand-cursor" aria-hidden />
+      </Link>
+      <nav className="nav-links" aria-label="Primary">
+        {NAV_LINKS.map((l) => (
+          <a key={l.href} href={l.href}>
+            {l.label}
+          </a>
+        ))}
+      </nav>
+    </header>
+  );
+}
 
-      <footer className="footer">
-        <span>© {new Date().getFullYear()} Carson Gabler</span>
-      </footer>
-    </div>
+function SiteFooter() {
+  return (
+    <footer className="footer">
+      <span className="footer-prompt">$</span>{" "}
+      <span className="footer-text">
+        echo &quot;© {new Date().getFullYear()} {SITE.name}&quot;
+      </span>
+    </footer>
   );
 }
 
 function Home() {
   return (
     <>
-      <section className="hero">
-        <h1>Hi, I'm Carson.</h1>
-        <p></p>
-      </section>
-
-      <section id="about" className="section">
-        <h2>About</h2>
-        <p></p>
-      </section>
-
+      <Hero />
+      <About />
       <section id="projects" className="section">
-        <Projects
-          username={GITHUB_USERNAME}
-          endpoint={PROJECTS_ENDPOINT}
-          limit={12}
-        />
+        <SectionHeading hash="projects" command="ls -lt ~/projects">
+          projects
+        </SectionHeading>
+        <Projects limit={12} />
       </section>
-
-      <section id="contact" className="section">
-        <h2>Contact</h2>
-        <p>
-          Reach me at <a href="mailto:you@example.com">you@example.com</a>.
-        </p>
-      </section>
+      <Skills />
+      <Contact />
     </>
   );
 }
 
-function ProjectDetailRoute({
-  username,
-  endpoint,
-}: {
-  username: string;
-  endpoint?: string;
-}) {
+function ProjectDetailRoute() {
   return (
     <section className="section project-detail-section">
-      <ProjectDetail username={username} endpoint={endpoint} />
+      <ProjectDetail />
     </section>
   );
 }
@@ -91,10 +90,39 @@ function ProjectDetailRoute({
 function NotFound() {
   return (
     <section className="section">
-      <h2>404</h2>
+      <h2 className="section-heading">
+        <span className="section-prompt">$</span>{" "}
+        <span className="section-cmd">cd /404</span>
+      </h2>
       <p>
-        Page not found. <Link to="/">Go home</Link>.
+        That path doesn&apos;t exist. <Link to="/">cd ~</Link>
       </p>
     </section>
   );
 }
+
+/**
+ * Two responsibilities:
+ *   - On a route change without a hash, scroll to top.
+ *   - On a route change with a hash (or initial load), scroll to that anchor
+ *     once it exists in the DOM. Lets in-page links work cross-route.
+ */
+function ScrollToHashOrTop() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+      return;
+    }
+    // Allow the route's content to mount before we measure.
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(hash.slice(1));
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, hash]);
+
+  return null;
+}
+
