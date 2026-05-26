@@ -52,7 +52,7 @@ const description = data.tagline.length > 155
         {data.tech.map((t) => <TechPill label={t} />)}
       </div>
 
-      {(data.repoUrl || data.liveUrl) && (
+      {(data.repoUrl || data.liveUrl || data.submissionUrl) && (
         <div class="mt-6 flex flex-wrap gap-3">
           {data.repoUrl && (
             <a
@@ -63,6 +63,17 @@ const description = data.tagline.length > 155
             >
               <Icon name="lucide:github" class="w-4 h-4" />
               <span>Repository</span>
+            </a>
+          )}
+          {data.submissionUrl && (
+            <a
+              href={data.submissionUrl}
+              target="_blank"
+              rel="noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent-soft)] text-sm transition-colors"
+            >
+              <Icon name="lucide:file-text" class="w-4 h-4" />
+              <span>{data.submissionLabel ?? "Submission"}</span>
             </a>
           )}
           {data.liveUrl && (

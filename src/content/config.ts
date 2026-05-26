@@ -21,6 +21,10 @@ const projects = defineCollection({
       repoUrl: z.string().url().optional(),
       /** Optional live demo / artifact link. */
       liveUrl: z.string().url().optional(),
+      /** Optional writeup / submission URL (Devpost, judging profile, etc.). */
+      submissionUrl: z.string().url().optional(),
+      /** Button label for `submissionUrl`. Defaults to "Submission". */
+      submissionLabel: z.string().optional(),
       /** Sorting + display order on the homepage. Lower = earlier. */
       order: z.number().default(100),
       /** True = featured (rendered as the oversize/headline card). */
