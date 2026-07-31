@@ -1,0 +1,121 @@
+---
+import { Icon } from "astro-icon/components";
+import TechPill from "./TechPill.astro";
+
+interface Props {
+  project: {
+    name: string;
+    repo: string;
+    summary: string;
+    tech: readonly string[];
+    date: string;
+    status?: string;
+  };
+}
+
+const { project } = Astro.props;
+const repoUrl = `https://github.com/cbgabler/${project.repo}`;
+---
+
+<article class="github-project panel" data-reveal>
+  <div class="github-project-topline">
+    <span class="project-index">GitHub project</span>
+    <span class="project-date">{project.date}</span>
+  </div>
+
+  <div class="github-project-heading">
+    <h3>{project.name}</h3>
+    {project.status && <span class="status-pill">{project.status}</span>}
+  </div>
+
+  <p>{project.summary}</p>
+
+  <div class="project-tech" aria-label={`${project.name} technologies`}>
+    {project.tech.map((tech) => <TechPill label={tech} />)}
+  </div>
+
+  <a href={repoUrl} target="_blank" rel="noreferrer" class="button-link">
+    <Icon name="lucide:github" class="action-icon" />
+    View repository
+  </a>
+</article>
+
+<style>
+  .github-project {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .github-project-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--silk-dim);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .project-index {
+    color: var(--route-active);
+  }
+
+  .github-project-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.4rem;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--silk);
+    font-family: var(--font-sans);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+  }
+
+  .github-project p {
+    margin: 0.85rem 0 0;
+    color: var(--silk-dim);
+    line-height: 1.65;
+  }
+
+  .status-pill {
+    color: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1.15rem;
+  }
+
+  .button-link {
+    align-self: flex-start;
+    margin-top: 1.35rem;
+  }
+
+  .action-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 520px) {
+    .github-project-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>

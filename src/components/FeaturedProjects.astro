@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import ProjectCard from "./ProjectCard.astro";
+import GitHubProjectCard from "./GitHubProjectCard.astro";
+import { GITHUB_PROJECTS } from "../data/github-projects";
 
 const homepageOrder = ["glassbox", "catalytica"];
 const projects = (await getCollection("projects"))
@@ -20,6 +22,16 @@ const projects = (await getCollection("projects"))
         <ProjectCard project={project} featured={project.slug === "glassbox"} />
       ))}
     </div>
+
+    <div class="github-header" data-reveal>
+      <p class="section-eyebrow">Public repository archive</p>
+      <h3>More things I've built</h3>
+      <p>Older coursework, experiments, and supporting tools — all open on GitHub.</p>
+    </div>
+
+    <div class="github-project-grid">
+      {GITHUB_PROJECTS.map((project) => <GitHubProjectCard project={project} />)}
+    </div>
   </div>
 </section>
 
@@ -31,5 +43,39 @@ const projects = (await getCollection("projects"))
   .project-list {
     display: grid;
     gap: 1.25rem;
+  }
+
+  .github-header {
+    max-width: 42rem;
+    margin-top: clamp(4rem, 9vw, 7rem);
+  }
+
+  .github-header h3 {
+    margin: 0.65rem 0 0;
+    color: var(--silk);
+    font-family: var(--font-sans);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+  }
+
+  .github-header > p:last-child {
+    margin: 1rem 0 0;
+    color: var(--silk-dim);
+    line-height: 1.7;
+  }
+
+  .github-project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .github-project-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
