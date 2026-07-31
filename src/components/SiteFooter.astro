@@ -4,19 +4,40 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="mx-auto w-full max-w-6xl px-5 sm:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-    <p class="text-sm text-[var(--color-fg-muted)]">
-      © {year} {SITE.name}
-    </p>
-    <p class="text-xs text-[var(--color-fg-dim)] font-mono">
-      Built with Astro · Hosted on Cloudflare Pages
-    </p>
+  <div class="site-container footer-inner">
+    <p>© {year} {SITE.name}</p>
+    <p class="build-note">Corvallis, Oregon · Built with Astro</p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--color-border);
-    margin-top: 4rem;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 2rem;
+    color: var(--silk-dim);
+    font-size: 0.82rem;
+  }
+
+  .footer-inner p {
+    margin: 0;
+  }
+
+  .build-note {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 </style>

@@ -1,0 +1,110 @@
+---
+import { SITE } from "../data/site";
+const bars = [28, 46, 64, 38, 82, 56, 94, 70, 44, 76, 52, 88, 62, 34, 72, 48, 80, 58, 40, 66, 30, 54, 42, 24];
+---
+
+<section id="off-duty" class="section-shell off-duty" aria-labelledby="off-duty-heading">
+  <div class="site-container off-duty-grid">
+    <div data-reveal>
+      <header class="section-header">
+        <p class="section-eyebrow">District 04 · After dark</p>
+        <h2 id="off-duty-heading" class="section-title">{SITE.offDuty.heading}</h2>
+      </header>
+      <p class="off-duty-copy">{SITE.offDuty.copy}</p>
+    </div>
+
+    <div class="audio-panel panel" data-reveal aria-hidden="true">
+      <div class="audio-meta">
+        <span>local_analysis.wav</span>
+        <span>44.1 kHz</span>
+      </div>
+      <div class="audio-bars">
+        {bars.map((height, index) => (
+          <span style={`--bar-height: ${height}%; --bar-delay: ${index * 38}ms`}></span>
+        ))}
+      </div>
+      <div class="audio-axis"><span>00:00</span><span>BPM / mood / metadata</span><span>03:42</span></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .off-duty {
+    border-block: 1px solid var(--line-soft);
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .off-duty-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr);
+    gap: clamp(2.5rem, 7vw, 6rem);
+    align-items: center;
+  }
+
+  .section-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .off-duty-copy {
+    max-width: 65ch;
+    margin: 0;
+    color: var(--silk-dim);
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .audio-panel {
+    padding: 1.25rem;
+  }
+
+  .audio-meta,
+  .audio-axis {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+  }
+
+  .audio-axis {
+    color: var(--silk-dim);
+  }
+
+  .audio-bars {
+    display: flex;
+    height: 10rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.28rem;
+    margin-block: 1.25rem;
+  }
+
+  .audio-bars span {
+    width: 100%;
+    height: var(--bar-height);
+    min-height: 4px;
+    background: var(--route-active);
+    opacity: 0.82;
+    transform-origin: center;
+    animation: audio-pulse 2.8s ease-in-out var(--bar-delay) infinite alternate;
+  }
+
+  @keyframes audio-pulse {
+    from { transform: scaleY(0.86); opacity: 0.58; }
+    to { transform: scaleY(1); opacity: 0.92; }
+  }
+
+  @media (max-width: 800px) {
+    .off-duty-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .audio-bars span {
+      animation: none;
+    }
+  }
+</style>

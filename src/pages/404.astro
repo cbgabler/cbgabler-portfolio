@@ -3,21 +3,36 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Not found" pageId="not-found">
-  <section class="py-24 text-center">
-    <p class="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-fg-muted)] mb-3">
-      404
-    </p>
-    <h1 class="font-display text-4xl sm:text-5xl font-semibold text-[var(--color-fg-strong)] mb-4">
-      Page not found
-    </h1>
-    <p class="text-[var(--color-fg-muted)] max-w-[50ch] mx-auto mb-8">
-      The page you're looking for doesn't exist or has moved.
-    </p>
-    <a
-      href="/"
-      class="inline-flex items-center gap-2 px-4 py-2 border border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-bg)] rounded-md text-sm font-semibold hover:bg-[var(--color-accent-soft)] hover:border-[var(--color-accent-soft)] transition-colors"
-    >
-      Back home
-    </a>
+  <section class="site-container not-found">
+    <p class="section-eyebrow">// 404</p>
+    <h1>Signal lost.</h1>
+    <p>The page you're looking for doesn't exist or has moved out of range.</p>
+    <a href="/" class="button-link">Back home</a>
   </section>
 </BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    min-height: calc(100dvh - var(--nav-height));
+    place-content: center;
+    justify-items: start;
+    padding-block: 5rem;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--silk);
+    font-family: var(--font-mono);
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .not-found > p:not(.section-eyebrow) {
+    max-width: 48ch;
+    margin: 1.25rem 0 2rem;
+    color: var(--silk-dim);
+  }
+</style>

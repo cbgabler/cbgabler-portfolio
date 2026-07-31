@@ -15,12 +15,17 @@ const target = SITE.cv.file;
     <meta http-equiv="refresh" content={`0; url=${target}`} />
     <link rel="canonical" href={new URL("/cv", SITE.url).toString()} />
     <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
       html {
-        background: #0b0c0e;
-        color: #e7e5e0;
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-          Roboto, sans-serif;
+        background: #050505;
+        color: #f2f2ef;
+        font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
       }
       body {
         display: grid;
@@ -30,7 +35,8 @@ const target = SITE.cv.file;
         padding: 2rem;
       }
       a {
-        color: #e8643a;
+        color: #ffffff;
+        text-underline-offset: 4px;
       }
     </style>
   </head>

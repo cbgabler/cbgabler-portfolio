@@ -1,0 +1,79 @@
+<figure class="tvla-trace">
+  <svg viewBox="0 0 620 116" role="img" aria-labelledby="tvla-title tvla-description" preserveAspectRatio="none">
+    <title id="tvla-title">GlassBox TVLA power trace</title>
+    <desc id="tvla-description">A measured signal crossing the absolute t equals 4.5 leakage threshold.</desc>
+    <path class="trace-grid" d="M0 28H620 M0 58H620 M0 88H620" aria-hidden="true" />
+    <line class="threshold" x1="0" y1="35" x2="620" y2="35" aria-hidden="true" />
+    <path
+      class="trace"
+      d="M0 78 L28 76 L55 81 L82 75 L110 79 L138 72 L165 82 L190 74 L212 80 L230 67 L247 84 L263 58 L278 89 L294 48 L309 92 L325 38 L340 86 L356 26 L372 78 L389 15 L405 74 L422 30 L439 82 L456 51 L474 79 L493 62 L512 83 L530 69 L550 77 L573 72 L596 79 L620 75"
+    />
+    <g class="trace-label">
+      <rect x="468" y="17" width="104" height="28" />
+      <text x="520" y="36" text-anchor="middle">|t| = 4.5</text>
+    </g>
+  </svg>
+  <figcaption>measured leakage / 1,000 traces</figcaption>
+</figure>
+
+<style>
+  .tvla-trace {
+    margin: 1.25rem 0 0;
+    padding: 0.65rem 0.75rem 0.45rem;
+    border: 1px solid var(--line-soft);
+    background: rgba(0, 0, 0, 0.64);
+  }
+
+  svg {
+    width: 100%;
+    height: 7rem;
+  }
+
+  .trace-grid,
+  .threshold,
+  .trace {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .trace-grid {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1;
+  }
+
+  .threshold {
+    stroke: rgba(255, 255, 255, 0.55);
+    stroke-width: 1;
+    stroke-dasharray: 6 7;
+  }
+
+  .trace {
+    stroke: var(--route-active);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.24));
+  }
+
+  .trace-label rect {
+    fill: var(--ink-black);
+    stroke: var(--route-active);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .trace-label text {
+    fill: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  figcaption {
+    margin-top: 0.2rem;
+    color: var(--silk-faint);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+</style>

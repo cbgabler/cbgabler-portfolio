@@ -1,6 +1,5 @@
 ---
 import "../styles/globals.css";
-import SiteNav from "../components/SiteNav.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import { SITE } from "../data/site";
 
@@ -25,7 +24,9 @@ const {
   canonical,
 } = Astro.props;
 
-const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — Firmware & Embedded-System Security`;
+const pageTitle = title
+  ? `${title} — ${SITE.name}`
+  : `${SITE.name} — Engineer & Builder`;
 const canonicalUrl =
   canonical ?? new URL(Astro.url.pathname, SITE.url).toString();
 const ogImageUrl = ogImage.startsWith("http")
@@ -38,12 +39,19 @@ const ogImageUrl = ogImage.startsWith("http")
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b0c0e" />
+    <meta name="theme-color" content="#050505" />
     <meta name="color-scheme" content="dark" />
 
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -64,31 +72,57 @@ const ogImageUrl = ogImage.startsWith("http")
     <!-- Sitemap link (consumed by crawlers) -->
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <!-- Hint browsers about font-display behavior baked into fontsource. -->
     <meta name="generator" content={Astro.generator} />
+    <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <SiteNav />
-    <main id="main" class="mx-auto w-full max-w-6xl px-5 sm:px-8 pb-24">
+    <main id="main" class="page-main">
       <slot />
     </main>
     <SiteFooter />
 
+    <script>
+      const revealItems = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        revealItems.forEach((item) => item.classList.add("visible"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -8%" },
+        );
+
+        revealItems.forEach((item) => observer.observe(item));
+      }
+    </script>
+
     <style>
       .skip-link {
-        position: absolute;
+        position: fixed;
         left: -9999px;
         top: 0;
-        background: var(--color-accent);
-        color: var(--color-bg);
+        background: var(--route-active);
+        color: var(--bg-deep);
         padding: 0.5rem 0.85rem;
+        font-family: var(--font-mono);
         font-weight: 600;
-        z-index: 100;
+        z-index: 200;
       }
       .skip-link:focus {
         left: 1rem;
         top: 1rem;
+      }
+
+      .page-main {
+        min-height: 100dvh;
       }
     </style>
   </body>

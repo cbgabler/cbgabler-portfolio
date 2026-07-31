@@ -1,41 +1,33 @@
-/**
- * Central site content. Edit this file to change anything visitor-facing
- * that isn't a project case study (those live in `src/content/projects/`).
- *
- * Lines marked with TODO are placeholders you should review before the
- * site is shared with a real academic audience.
- */
+/** Central visitor-facing content outside the project case studies. */
 
 export const SITE = {
   /** Canonical site URL. Update once a custom domain is wired in. */
   url: "https://cbgabler.pages.dev",
 
-  /** Owner identity */
   name: "Carson Gabler",
-  /** Used in <title> and meta description. */
   shortDescription:
-    "Senior CS undergraduate at Oregon State University. Research interest: firmware and embedded-system security with ML-assisted vulnerability discovery.",
-  /** One-line role descriptor shown under the hero. */
-  tagline:
-    "Firmware & embedded-system security · ML-assisted vulnerability discovery",
-  /** A second, denser status line under the tagline. */
-  status:
-    "Senior, CS @ Oregon State · Data Engineering @ The Linux Foundation · Firmware @ Intel (Summer 2026)",
+    "Engineer and builder working across systems, security, data, and creative tools.",
+  hero: {
+    eyebrow: "Carson Gabler · Corvallis, Oregon",
+    heading: "I find the signal in the noise.",
+    subhead:
+      "I build systems across firmware, security, data, and creative tooling — currently engineering at Intel and always looking for the hidden structure in complicated things.",
+  },
+  ticker: [
+    "engineering @ intel",
+    "systems · security · data · creative tools",
+    "corvallis, oregon · 44.5646° n",
+  ],
 
-  /** Used by /cv page. Drop a new file into /public and update this path
-   *  when you have an academic-format CV. */
+  /** Used by the /cv redirect. */
   cv: {
-    /** TODO: replace with an academic CV once available. The current file
-     *  is an industry resume; suitable for industry but not ideal for
-     *  graduate-school admissions audiences. */
     file: "/Carson_Gabler_Resume.pdf",
     label: "Resume (PDF)",
   },
 
-  /** Contact + professional links. Set any to null to hide. */
+  /** Contact + professional links. */
   contact: {
     email: "carsongabler7@gmail.com",
-    emailAcademic: null as string | null, // e.g. "gablerc@oregonstate.edu"
     github: {
       handle: "cbgabler",
       url: "https://github.com/cbgabler",
@@ -44,58 +36,94 @@ export const SITE = {
       handle: "carsongabler",
       url: "https://www.linkedin.com/in/carsongabler",
     },
-    /** TODO: create profile at https://scholar.google.com/ and paste the
-     *  citations URL here once it exists. Helps academic readers. */
-    scholar: null as { url: string } | null,
-    phone: "+1 503-577-0072",
-    location: "Oregon, USA",
   },
 
-  /** Short about-section copy. ~120 words for the academic audience. */
-  about: [
-    "I'm a senior at Oregon State University finishing a B.S. in Computer Science in December 2026 (GPA 3.7; Dean's List 2022–2026). My research interest is firmware and embedded-system security, with a focus on ML-assisted vulnerability discovery and side-channel resilience.",
-    "I split my time between systems-level work (C/C++, Go, embedded toolchains, hardware bring-up) and data infrastructure (currently at The Linux Foundation). I care about systems that are obvious to read, robust to instrument, and honest about what they can and can't prove.",
-    "Outside coursework, I build small platforms that join the two — see GlassBox below for the clearest example.",
+  skills: [
+    {
+      tag: "FW",
+      title: "Firmware & silicon",
+      items: [
+        "SoC firmware",
+        "x86 chiplet platforms",
+        "die-to-die UCIe",
+        "BIOS",
+        "pre/post-silicon validation",
+        "Simics regression testing",
+      ],
+    },
+    {
+      tag: "HW",
+      title: "Hardware security",
+      items: [
+        "side-channel analysis (TVLA, CPA)",
+        "embedded C/C++",
+        "ESP32 bring-up",
+        "UART/ADC interfacing",
+        "power-trace diagnostics",
+      ],
+    },
+    {
+      tag: "DATA",
+      title: "Data & cloud",
+      items: [
+        "dbt",
+        "SQL",
+        "Kafka",
+        "Azure Data Factory",
+        "Power BI",
+        "Bicep IaC",
+        "CI/CD",
+      ],
+    },
+    {
+      tag: "LANG",
+      title: "Languages & tools",
+      items: [
+        "C",
+        "C++",
+        "Python",
+        "Go",
+        "TypeScript",
+        "R",
+        "Bash",
+        "Git",
+        "Linux",
+        "Docker",
+      ],
+    },
   ],
 
   /** Experience timeline. Newest / future first. */
   experience: [
     {
       role: "Firmware Engineering Intern",
-      org: "Intel Corporation",
+      org: "Intel",
       start: "Jun 2026",
-      end: "Jan 2027",
-      isCurrent: false,
-      isFuture: true,
-      summary: "Incoming. Firmware engineering on Intel platforms.",
+      end: "Present",
+      summary:
+        "SoC firmware for x86 chiplet platforms, die-to-die UCIe interconnect firmware, and automated regression testing on Simics.",
     },
     {
       role: "Data Engineering Intern",
       org: "The Linux Foundation",
       start: "Oct 2025",
-      end: "Present",
-      isCurrent: true,
-      isFuture: false,
+      end: "Jun 2026",
       summary:
-        "Building and maintaining data infrastructure that supports Linux Foundation programs and reporting.",
+        "dbt models powering commit-tracking across 800+ open source projects, CI/CD-integrated pipelines.",
     },
     {
       role: "Cloud Engineering Intern",
       org: "Daimler Truck North America",
       start: "Mar 2025",
       end: "Sep 2025",
-      isCurrent: false,
-      isFuture: false,
       summary:
-        "Cloud engineering work supporting internal platforms and tooling.",
+        "Financial Operations Hub, 32% cloud cost reduction, Power BI dashboards.",
     },
   ] satisfies ReadonlyArray<{
     role: string;
     org: string;
     start: string;
     end: string;
-    isCurrent: boolean;
-    isFuture: boolean;
     summary: string;
   }>,
 
@@ -103,18 +131,93 @@ export const SITE = {
   education: [
     {
       school: "Oregon State University",
-      degree: "B.S., Computer Science",
-      detail: "GPA 3.7 · Dean's List 2022–2026",
-      start: "2022",
+      degree: "B.S. Computer Science",
+      detail: "3.7 GPA",
       end: "Dec 2026",
     },
   ],
+
+  offDuty: {
+    heading: "Signals of a different kind",
+    copy: "Outside of chips, I'm usually knee-deep in my own music library. I built a tool that listens to every track locally with librosa to tag BPM and mood, cross-references Spotify and Discogs to fill in the gaps, and keeps years of poorly-tagged mp3s organized. Turns out reading a waveform for a hidden AES key and reading one for tempo aren't so different.",
+  },
+
+  availability:
+    "Based in Corvallis, OR · open to firmware & embedded security roles.",
 } as const;
 
-/** Primary nav links — these are anchored sections on the home page. */
-export const NAV_LINKS: { label: string; href: string }[] = [
-  { label: "Projects", href: "/#projects" },
-  { label: "About", href: "/#about" },
-  { label: "Experience", href: "/#experience" },
-  { label: "Contact", href: "/#contact" },
-];
+export type DistrictId =
+  | "core"
+  | "skills"
+  | "projects"
+  | "experience"
+  | "off-duty"
+  | "contact";
+
+export type MapDistrict = {
+  marker: string;
+  id: DistrictId;
+  label: string;
+  shortLabel: string;
+  href: string;
+  description: string;
+  route: string;
+};
+
+/** Conceptual city neighborhoods used by the interactive poster map. */
+export const MAP_DISTRICTS: readonly MapDistrict[] = [
+  {
+    marker: "CENTER",
+    id: "core",
+    label: "Overview",
+    shortLabel: "CORE",
+    href: "#core",
+    description: "Return to the portfolio overview",
+    route: "core",
+  },
+  {
+    marker: "PRACTICE",
+    id: "skills",
+    label: "Practice",
+    shortLabel: "SKILLS",
+    href: "#skills",
+    description: "Tour firmware, silicon, security, data, and language skills",
+    route: "fw",
+  },
+  {
+    marker: "WORKS",
+    id: "projects",
+    label: "Selected works",
+    shortLabel: "WORKS",
+    href: "#projects",
+    description: "Tour selected projects including GlassBox",
+    route: "sec",
+  },
+  {
+    marker: "TIMELINE",
+    id: "experience",
+    label: "Timeline",
+    shortLabel: "WORK",
+    href: "#experience",
+    description: "Tour professional experience",
+    route: "io",
+  },
+  {
+    marker: "AFTER DARK",
+    id: "off-duty",
+    label: "After dark",
+    shortLabel: "LIFE",
+    href: "#off-duty",
+    description: "Tour music and audio work",
+    route: "dsp",
+  },
+  {
+    marker: "CONTACT",
+    id: "contact",
+    label: "Contact",
+    shortLabel: "HELLO",
+    href: "#contact",
+    description: "Open contact information",
+    route: "pad",
+  },
+] as const;

@@ -2,139 +2,180 @@
 import { SITE } from "../data/site";
 ---
 
-<section id="experience" class="py-16 sm:py-20" aria-labelledby="experience-heading">
-  <header class="mb-10">
-    <h2
-      id="experience-heading"
-      class="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-fg-strong)]"
-    >
-      Experience
-    </h2>
-  </header>
+<section id="experience" class="section-shell experience" aria-labelledby="experience-heading">
+  <div class="site-container">
+    <header class="section-header" data-reveal>
+      <p class="section-eyebrow">District 03 · Timeline</p>
+      <h2 id="experience-heading" class="section-title">Where I've worked</h2>
+    </header>
 
-  <ol class="space-y-7">
-    {SITE.experience.map((item) => (
-      <li class="experience-row">
-        <div class="experience-date">
-          <span>{item.start}</span>
-          <span class="text-[var(--color-fg-dim)]"> – </span>
-          <span class={item.isCurrent ? "text-[var(--color-accent-soft)]" : ""}>
-            {item.end}
-          </span>
-          {item.isCurrent && (
-            <span class="experience-tag tag-current">Current</span>
-          )}
-          {item.isFuture && (
-            <span class="experience-tag tag-future">Incoming</span>
-          )}
-        </div>
-        <div class="experience-body">
-          <h3 class="experience-role">{item.role}</h3>
-          <div class="experience-org">{item.org}</div>
-          <p class="experience-summary">{item.summary}</p>
-        </div>
-      </li>
+    <ol class="experience-log">
+      {SITE.experience.map((item) => (
+        <li class="experience-entry" data-reveal>
+          <span class="log-node" aria-hidden="true"></span>
+          <div class="experience-body">
+            <div class="role-line">
+              <h3>{item.role}</h3>
+              <span aria-hidden="true">—</span>
+              <p>{item.org}</p>
+            </div>
+            <p class="experience-summary">{item.summary}</p>
+          </div>
+          <time>{item.start}–{item.end}</time>
+        </li>
+      ))}
+    </ol>
+
+    {SITE.education.map((education) => (
+      <div class="education-line panel" data-reveal>
+        <span class="education-label">education</span>
+        <p>
+          <strong>{education.school}</strong>
+          <span>— {education.degree}, {education.end}, {education.detail}</span>
+        </p>
+      </div>
     ))}
-  </ol>
-
-  {SITE.education.length > 0 && (
-    <div class="mt-12">
-      <h3 class="font-display text-lg font-semibold text-[var(--color-fg-strong)] mb-4">
-        Education
-      </h3>
-      <ol class="space-y-5">
-        {SITE.education.map((edu) => (
-          <li class="experience-row">
-            <div class="experience-date">
-              <span>{edu.start}</span>
-              <span class="text-[var(--color-fg-dim)]"> – </span>
-              <span>{edu.end}</span>
-            </div>
-            <div class="experience-body">
-              <h4 class="experience-role">{edu.school}</h4>
-              <div class="experience-org">{edu.degree}</div>
-              <p class="experience-summary">{edu.detail}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  )}
+  </div>
 </section>
 
 <style>
-  .experience-row {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 1.5rem;
-    align-items: baseline;
+  .experience {
+    border-top: 1px solid var(--line-soft);
   }
 
-  .experience-date {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--color-fg-muted);
-    letter-spacing: 0.02em;
-    line-height: 1.55;
-    padding-top: 0.15rem;
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .experience-body {
-    min-width: 0;
-  }
-
-  .experience-role {
-    font-family: var(--font-serif);
-    font-weight: 600;
-    font-size: 1.05rem;
-    color: var(--color-fg-strong);
+  .experience-log {
     margin: 0;
-    line-height: 1.3;
+    padding: 0;
+    list-style: none;
   }
 
-  .experience-org {
-    margin-top: 0.15rem;
-    font-size: 0.95rem;
-    color: var(--color-fg);
+  .experience-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr) minmax(10rem, auto);
+    gap: 1.25rem;
+    padding: 0 0 2.5rem;
+  }
+
+  .experience-entry:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 0.7rem;
+    bottom: -0.15rem;
+    left: 0.36rem;
+    width: 1px;
+    background: var(--line-medium);
+  }
+
+  .log-node {
+    position: relative;
+    z-index: 1;
+    width: 0.78rem;
+    height: 0.78rem;
+    margin-top: 0.4rem;
+    border: 2px solid var(--route-active);
+    background: var(--bg-deep);
+  }
+
+  .role-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+
+  .role-line h3,
+  .role-line p {
+    margin: 0;
+  }
+
+  .role-line h3 {
+    color: var(--silk);
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .role-line span,
+  .role-line p {
+    color: var(--silk-dim);
   }
 
   .experience-summary {
-    margin-top: 0.5rem;
-    font-size: 0.92rem;
-    color: var(--color-fg-muted);
-    line-height: 1.6;
-    max-width: 60ch;
+    max-width: 68ch;
+    margin: 0.65rem 0 0;
+    color: var(--silk-dim);
+    font-size: 0.94rem;
+    line-height: 1.7;
   }
 
-  .experience-tag {
-    display: inline-flex;
-    align-items: center;
+  time {
+    justify-self: end;
+    padding-top: 0.18rem;
+    color: var(--route-active);
     font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
+    font-size: 0.73rem;
+    letter-spacing: 0.025em;
+    text-align: right;
+    text-transform: lowercase;
+  }
+
+  .education-line {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2rem;
+    margin-top: 1rem;
+    padding: 1rem 1.2rem;
+  }
+
+  .education-label {
+    color: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 0.1rem 0.45rem;
-    border-radius: 999px;
-    border: 1px solid currentColor;
-    margin-left: 0.25rem;
   }
 
-  .tag-current {
-    color: var(--color-accent-soft);
+  .education-line p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    color: var(--silk-dim);
+    font-size: 0.88rem;
   }
 
-  .tag-future {
-    color: var(--color-fg-muted);
+  .education-line strong {
+    color: var(--silk);
+    font-weight: 600;
   }
 
-  @media (max-width: 640px) {
-    .experience-row {
-      grid-template-columns: 1fr;
-      gap: 0.4rem;
+  @media (max-width: 720px) {
+    .experience-entry {
+      grid-template-columns: 1.25rem minmax(0, 1fr);
+      gap: 0 1rem;
+    }
+
+    time {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: start;
+      margin-bottom: 0.45rem;
+    }
+
+    .experience-body {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .log-node {
+      grid-row: 1 / 3;
+    }
+
+    .education-line {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.35rem;
     }
   }
 </style>

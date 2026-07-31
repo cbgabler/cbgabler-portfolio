@@ -1,137 +1,605 @@
 ---
-import { Icon } from "astro-icon/components";
-import { SITE } from "../data/site";
+import { MAP_DISTRICTS, SITE } from "../data/site";
+
+const destinations = MAP_DISTRICTS.filter((district) => district.id !== "core");
+const byId = Object.fromEntries(destinations.map((district) => [district.id, district]));
 ---
 
-<section class="hero" aria-labelledby="hero-heading">
-  <div class="text-xs uppercase tracking-[0.18em] text-[var(--color-fg-muted)] font-mono mb-5 fade-up">
-    {SITE.contact.location}
-  </div>
+<section id="core" class="hero" aria-labelledby="hero-heading">
+  <div class="poster-frame">
+    <div class="hero-copy">
+      <p class="hero-location">{SITE.hero.eyebrow}</p>
+      <h1 id="hero-heading">{SITE.hero.heading}</h1>
+      <p class="hero-subhead">{SITE.hero.subhead}</p>
+      <div class="hero-actions">
+        <a href="#projects" class="poster-link">Selected work</a>
+        <a href="#contact" class="poster-link">Start a conversation</a>
+      </div>
+    </div>
 
-  <h1
-    id="hero-heading"
-    class="font-display font-semibold leading-[1.02] text-[var(--color-fg-strong)] fade-up"
-    style="font-size: clamp(2.75rem, 9vw, 6.5rem); animation-delay: 40ms;"
-  >
-    {SITE.name}
-  </h1>
+    <svg
+      class="city-map"
+      viewBox="0 0 1200 820"
+      preserveAspectRatio="xMidYMid slice"
+      role="group"
+      aria-labelledby="map-title map-description"
+    >
+      <title id="map-title">A conceptual city map of Carson Gabler's portfolio</title>
+      <desc id="map-description">
+        An artistic monochrome street plan with five interactive neighborhoods leading to skills, projects, experience, personal work, and contact information.
+      </desc>
 
-  <hr class="accent-rule mt-7 mb-7" />
+      <defs>
+        <pattern id="micro-grid" width="18" height="18" patternUnits="userSpaceOnUse">
+          <path d="M18 0H0V18" fill="none" stroke="currentColor" stroke-width="0.45" opacity="0.16" />
+        </pattern>
+        <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="currentColor" stroke-width="1" opacity="0.22" />
+        </pattern>
+        <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.9" />
+        </filter>
+      </defs>
 
-  <p
-    class="text-lg sm:text-2xl text-[var(--color-fg)] max-w-[60ch] leading-[1.5] fade-up"
-    style="animation-delay: 120ms;"
-  >
-    {SITE.tagline}
-  </p>
+      <rect class="map-ground" x="1" y="1" width="1198" height="818" />
+      <rect class="micro-grid" x="20" y="20" width="1160" height="780" />
 
-  <p
-    class="text-sm sm:text-base text-[var(--color-fg-muted)] max-w-[62ch] mt-3 leading-relaxed fade-up"
-    style="animation-delay: 180ms;"
-  >
-    {SITE.status}
-  </p>
+      <g class="map-border" aria-hidden="true">
+        <path d="M20 80V20H80 M1120 20H1180V80 M1180 740V800H1120 M80 800H20V740" />
+        <path d="M104 20V34 M140 20V28 M176 20V34 M1024 20V34 M1060 20V28 M1096 20V34" />
+        <text x="52" y="56">CG / FIELD NOTES 01</text>
+        <text x="1148" y="776" text-anchor="end">44.5646° N · 123.2620° W</text>
+      </g>
 
-  <div
-    class="mt-8 flex flex-wrap gap-3 fade-up"
-    style="animation-delay: 240ms;"
-  >
-    {SITE.cv?.file && (
-      <a
-        href="/cv"
-        class="hero-cta hero-cta-primary"
-      >
-        <Icon name="lucide:file-text" class="w-4 h-4" />
-        <span>{SITE.cv.label}</span>
+      <g class="city-blocks" aria-hidden="true">
+        <path d="M84 106L224 82 272 145 224 220 104 206Z" />
+        <path d="M294 80L430 96 444 184 326 222 276 148Z" />
+        <path d="M468 84L612 72 650 162 556 224 456 180Z" />
+        <path d="M670 82L824 98 850 190 742 228 646 164Z" />
+        <path d="M872 92L1086 78 1128 166 1042 232 888 196Z" />
+        <path d="M76 248L214 228 260 304 218 390 92 374Z" />
+        <path d="M286 248L426 224 474 308 422 392 280 374Z" />
+        <path d="M494 246L630 222 670 296 628 386 482 380Z" />
+        <path d="M702 246L850 218 900 306 846 386 704 378Z" />
+        <path d="M928 252L1108 222 1132 342 1052 398 918 364Z" />
+        <path d="M68 424L218 402 258 492 210 566 74 548Z" />
+        <path d="M282 420L420 398 464 480 422 568 286 546Z" />
+        <path d="M486 418L630 394 674 480 626 568 490 548Z" />
+        <path d="M702 414L850 398 900 486 850 568 710 544Z" />
+        <path d="M928 422L1108 394 1132 514 1050 572 918 544Z" />
+        <path d="M80 602L220 574 268 662 224 746 92 724Z" />
+        <path d="M292 604L430 574 474 660 424 742 286 722Z" />
+        <path d="M504 604L632 578 674 660 626 744 492 720Z" />
+        <path d="M710 602L850 576 900 664 850 744 704 720Z" />
+        <path d="M928 602L1098 578 1130 690 1046 750 920 720Z" />
+      </g>
+
+      <g class="building-mass" aria-hidden="true">
+        <path d="M116 128L184 110 208 142 142 166Z M316 112L384 120 390 162 326 170Z M492 110L562 104 584 142 520 168Z" />
+        <path d="M704 112L778 122 790 164 722 176Z M930 122L1010 110 1034 152 970 178Z M1024 122L1080 116 1096 152 1050 172Z" />
+        <path d="M110 276L174 264 198 304 156 336 108 324Z M316 278L388 260 410 306 374 342 314 330Z" />
+        <path d="M516 270L584 254 614 300 578 344 520 328Z M734 268L812 250 842 306 792 340 732 326Z" />
+        <path d="M962 280L1036 264 1064 316 1014 352 958 330Z M112 452L180 438 204 482 162 518 108 504Z" />
+        <path d="M314 452L382 434 412 478 374 522 316 510Z M520 448L592 432 618 476 578 522 520 508Z" />
+        <path d="M740 448L806 432 838 478 796 520 738 506Z M968 452L1042 436 1068 486 1016 526 964 504Z" />
+        <path d="M114 630L182 614 212 658 170 702 112 686Z M324 630L392 614 416 660 378 704 322 686Z" />
+        <path d="M532 630L594 614 620 660 578 704 528 686Z M742 628L814 614 840 660 798 706 740 684Z" />
+        <path d="M960 632L1038 614 1066 666 1016 708 958 682Z" />
+      </g>
+
+      <g class="minor-streets" aria-hidden="true">
+        <path d="M54 178C224 166 360 178 514 154S844 118 1148 154" />
+        <path d="M50 338C222 326 358 340 510 318S846 284 1150 320" />
+        <path d="M48 510C212 500 374 516 520 492S850 458 1152 494" />
+        <path d="M52 682C222 666 356 684 520 658S850 630 1146 660" />
+        <path d="M164 54C150 218 174 348 152 500S130 680 160 770" />
+        <path d="M366 48C344 208 370 348 354 494S330 676 360 776" />
+        <path d="M574 44C548 206 578 346 560 500S540 676 566 778" />
+        <path d="M782 48C758 210 784 350 770 498S748 676 778 774" />
+        <path d="M1004 46C974 210 1010 346 988 502S970 682 996 774" />
+        <path d="M102 94L244 382 106 620 M264 90L430 386 286 752 M466 72L642 390 492 752" />
+        <path d="M690 74L860 386 708 752 M894 84L1112 380 920 744" />
+        <path d="M78 272L1134 568 M70 574L1118 278" />
+      </g>
+
+      <g class="major-roads" aria-hidden="true">
+        <path d="M36 410C208 372 344 430 516 400S842 338 1162 390" />
+        <path d="M596 34C568 196 632 330 598 482S562 690 610 788" />
+        <path d="M82 744C300 610 430 574 612 468S902 274 1128 94" />
+        <path d="M74 92C304 232 418 294 608 410S918 596 1128 738" />
+      </g>
+
+      <g class="river" aria-hidden="true">
+        <path class="river-bed" d="M-40 548C138 470 232 498 352 548S586 674 744 596 990 440 1240 510" />
+        <path class="river-edge" d="M-40 520C138 442 236 470 364 522S592 638 732 568 986 412 1240 480" />
+        <path class="river-edge" d="M-40 576C142 498 224 526 340 576S578 710 756 624 998 470 1240 540" />
+      </g>
+
+      <g class="tour-routes" aria-hidden="true">
+        <path data-route="fw" d="M590 404C514 338 456 270 392 184" />
+        <path data-route="sec" d="M606 398C684 326 760 252 838 166" />
+        <path data-route="io" d="M616 414C748 418 872 424 1000 446" />
+        <path data-route="dsp" d="M604 424C650 504 698 574 756 650" />
+        <path data-route="pad" d="M578 420C490 498 414 574 344 674" />
+      </g>
+
+      <g class="origin" aria-hidden="true">
+        <circle cx="600" cy="410" r="17" />
+        <circle cx="600" cy="410" r="4" />
+        <path d="M600 378V390 M600 430V442 M568 410H580 M620 410H632" />
+        <text x="624" y="394">CARSON / ORIGIN</text>
+      </g>
+
+      <a class="map-district" href={byId.skills.href} data-map-target="fw" aria-label={byId.skills.description}>
+        <path class="district-area" d="M260 72L520 62 544 242 304 280 240 170Z" />
+        <circle class="district-marker" cx="390" cy="166" r="27" />
+        <text class="district-index" x="390" y="158" text-anchor="middle">01</text>
+        <text class="district-name" x="390" y="202" text-anchor="middle">PRACTICE</text>
+        <text class="district-detail" x="390" y="221" text-anchor="middle">SKILLS & TOOLS</text>
       </a>
-    )}
-    {SITE.contact.github && (
-      <a
-        href={SITE.contact.github.url}
-        target="_blank"
-        rel="noreferrer"
-        class="hero-cta"
-      >
-        <Icon name="lucide:github" class="w-4 h-4" />
-        <span>GitHub</span>
+
+      <a class="map-district" href={byId.projects.href} data-map-target="sec" aria-label={byId.projects.description}>
+        <path class="district-area" d="M720 54L1068 60 1128 236 858 286 704 180Z" />
+        <circle class="district-marker" cx="846" cy="168" r="27" />
+        <text class="district-index" x="846" y="160" text-anchor="middle">02</text>
+        <text class="district-name" x="846" y="204" text-anchor="middle">SELECTED WORKS</text>
+        <text class="district-detail" x="846" y="223" text-anchor="middle">PROJECT ARCHIVE</text>
       </a>
-    )}
-    {SITE.contact.linkedin && (
-      <a
-        href={SITE.contact.linkedin.url}
-        target="_blank"
-        rel="noreferrer"
-        class="hero-cta"
-      >
-        <Icon name="lucide:linkedin" class="w-4 h-4" />
-        <span>LinkedIn</span>
+
+      <a class="map-district" href={byId.experience.href} data-map-target="io" aria-label={byId.experience.description}>
+        <path class="district-area" d="M874 312L1150 280 1164 568 910 594 826 450Z" />
+        <circle class="district-marker" cx="1002" cy="446" r="27" />
+        <text class="district-index" x="1002" y="438" text-anchor="middle">03</text>
+        <text class="district-name" x="1002" y="482" text-anchor="middle">TIMELINE</text>
+        <text class="district-detail" x="1002" y="501" text-anchor="middle">PLACES & PEOPLE</text>
       </a>
-    )}
-    {SITE.contact.email && (
-      <a
-        href={`mailto:${SITE.contact.email}`}
-        class="hero-cta"
-      >
-        <Icon name="lucide:mail" class="w-4 h-4" />
-        <span>Email</span>
+
+      <a class="map-district" href={byId["off-duty"].href} data-map-target="dsp" aria-label={byId["off-duty"].description}>
+        <path class="district-area" d="M606 550L900 532 1010 770 680 780 570 672Z" />
+        <circle class="district-marker" cx="758" cy="654" r="27" />
+        <text class="district-index" x="758" y="646" text-anchor="middle">04</text>
+        <text class="district-name" x="758" y="690" text-anchor="middle">AFTER DARK</text>
+        <text class="district-detail" x="758" y="709" text-anchor="middle">MUSIC & CURIOSITY</text>
       </a>
-    )}
+
+      <a class="map-district" href={byId.contact.href} data-map-target="pad" aria-label={byId.contact.description}>
+        <path class="district-area" d="M96 542L446 520 554 696 426 788 96 766 44 638Z" />
+        <circle class="district-marker" cx="344" cy="674" r="27" />
+        <text class="district-index" x="344" y="666" text-anchor="middle">05</text>
+        <text class="district-name" x="344" y="710" text-anchor="middle">CONTACT</text>
+        <text class="district-detail" x="344" y="729" text-anchor="middle">OPEN CHANNEL</text>
+      </a>
+
+      <g class="scale-mark" aria-hidden="true">
+        <path d="M70 774H190 M70 768V780 M130 768V780 M190 768V780" />
+        <text x="70" y="758">0</text><text x="178" y="758">1 KM</text>
+      </g>
+    </svg>
+
+    <p class="map-note">A conceptual map. Choose a neighborhood to explore.</p>
   </div>
 </section>
 
+<script>
+  const hero = document.querySelector<HTMLElement>(".hero");
+  const heroFrame = document.querySelector<HTMLElement>(".poster-frame");
+  const districts = document.querySelectorAll<SVGAElement>(".hero .map-district");
+  const routes = document.querySelectorAll<SVGPathElement>(".hero [data-route]");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (hero && heroFrame && !reduceMotion) {
+    let ticking = false;
+
+    const updateHeroProgress = () => {
+      const rect = hero.getBoundingClientRect();
+      const scrollRange = Math.max(hero.offsetHeight - window.innerHeight, 1);
+      const progress = Math.min(Math.max(-rect.top / scrollRange, 0), 1);
+      const easedFade = Math.pow(progress, 1.45);
+      heroFrame.style.setProperty("--hero-progress", easedFade.toFixed(4));
+      heroFrame.style.setProperty("--hero-scale", (1 + easedFade * 0.025).toFixed(4));
+      ticking = false;
+    };
+
+    const requestHeroUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateHeroProgress);
+    };
+
+    updateHeroProgress();
+    window.addEventListener("scroll", requestHeroUpdate, { passive: true });
+    window.addEventListener("resize", requestHeroUpdate);
+  }
+
+  const setActiveRoute = (route: string | null) => {
+    routes.forEach((path) => {
+      const active = path.dataset.route === route;
+      path.classList.toggle("active", active);
+      if (active && !reduceMotion) {
+        path.classList.remove("traveling");
+        path.getBoundingClientRect();
+        path.classList.add("traveling");
+      } else if (!active) {
+        path.classList.remove("traveling");
+      }
+    });
+  };
+
+  districts.forEach((district) => {
+    const activate = () => setActiveRoute(district.dataset.mapTarget ?? null);
+    district.addEventListener("pointerenter", activate);
+    district.addEventListener("focus", activate);
+    district.addEventListener("pointerleave", () => {
+      if (!district.matches(":focus")) setActiveRoute(null);
+    });
+    district.addEventListener("blur", () => setActiveRoute(null));
+  });
+</script>
+
 <style>
   .hero {
-    padding: 5rem 0 5.5rem;
+    position: relative;
+    height: 180svh;
+    min-height: 70rem;
+    background: #030303;
   }
 
-  @media (min-width: 1024px) {
-    .hero {
-      padding: 7rem 0 6rem;
-    }
+  .poster-frame {
+    --hero-progress: 0;
+    --hero-scale: 1;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100svh;
+    overflow: hidden;
+    background: #030303;
+    opacity: calc(1 - var(--hero-progress));
+    transform: scale(var(--hero-scale));
+    transform-origin: center;
+    will-change: opacity, transform;
   }
 
-  .hero-cta {
+  .city-map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    color: var(--route);
+  }
+
+  .map-ground {
+    fill: #050505;
+    stroke: none;
+  }
+
+  .micro-grid {
+    fill: url(#micro-grid);
+    color: #fff;
+  }
+
+  .map-border path,
+  .scale-mark path {
+    fill: none;
+    stroke: var(--route);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .map-border > path:first-child {
+    display: none;
+  }
+
+  .map-border text,
+  .scale-mark text {
+    fill: var(--silk-faint);
+    font-family: var(--font-sans);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .city-blocks path {
+    fill: #090909;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .building-mass path {
+    fill: #171717;
+    stroke: rgba(255, 255, 255, 0.32);
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .minor-streets path,
+  .major-roads path,
+  .river path,
+  .tour-routes path,
+  .origin path,
+  .origin circle {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .minor-streets path {
+    stroke: rgba(255, 255, 255, 0.28);
+    stroke-width: 1;
+  }
+
+  .major-roads path {
+    stroke: #ededE9;
+    stroke-width: 3.2;
+    filter: url(#soft-shadow);
+  }
+
+  .river-bed {
+    stroke: #111;
+    stroke-width: 58;
+  }
+
+  .river-edge {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 1.2;
+    stroke-dasharray: 5 7;
+  }
+
+  .tour-routes path {
+    stroke: rgba(255, 255, 255, 0.22);
+    stroke-width: 2;
+    stroke-dasharray: 4 8;
+    transition: stroke 160ms ease, stroke-width 160ms ease, opacity 160ms ease;
+  }
+
+  .tour-routes path.active {
+    stroke: #fff;
+    stroke-width: 4;
+    opacity: 1;
+  }
+
+  .tour-routes path.traveling {
+    animation: travel 700ms ease-out 1;
+  }
+
+  @keyframes travel {
+    from { stroke-dasharray: 2 18; stroke-dashoffset: 42; }
+    to { stroke-dasharray: 28 0; stroke-dashoffset: 0; }
+  }
+
+  .origin circle,
+  .origin path {
+    stroke: #fff;
+    stroke-width: 1.2;
+  }
+
+  .origin circle:last-of-type {
+    fill: #fff;
+  }
+
+  .origin text {
+    fill: #fff;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .map-district {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .district-area {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 1.5;
+    transition: fill 160ms ease, stroke 160ms ease;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .district-marker {
+    fill: #050505;
+    stroke: rgba(255, 255, 255, 0.72);
+    stroke-width: 1.5;
+    transition: fill 160ms ease, stroke-width 160ms ease;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .district-index,
+  .district-name,
+  .district-detail {
+    fill: #fff;
+    font-family: var(--font-sans);
+    pointer-events: none;
+  }
+
+  .district-index {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .district-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+  }
+
+  .district-detail {
+    fill: var(--silk-faint);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+  }
+
+  .map-district:hover .district-area,
+  .map-district:focus-visible .district-area {
+    fill: rgba(255, 255, 255, 0.055);
+    stroke: rgba(255, 255, 255, 0.72);
+    stroke-dasharray: 6 7;
+  }
+
+  .map-district:hover .district-marker,
+  .map-district:focus-visible .district-marker {
+    fill: #fff;
+    stroke-width: 3;
+  }
+
+  .map-district:hover .district-index,
+  .map-district:focus-visible .district-index {
+    fill: #050505;
+  }
+
+  .map-district:focus-visible {
+    outline: none;
+  }
+
+  .hero-copy {
+    position: absolute;
+    z-index: 4;
+    top: clamp(4rem, 10vw, 8.5rem);
+    left: clamp(2rem, 7vw, 7rem);
+    width: min(48rem, 58%);
+    padding: 1rem 3rem 2.5rem 0;
+    background: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, 0.94) 67%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .hero-location {
+    margin: 0 0 0.85rem;
+    color: var(--silk-dim);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 11ch;
+    margin: 0;
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: clamp(3rem, 7.6vw, 7.5rem);
+    font-weight: 500;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+  }
+
+  .hero-subhead {
+    max-width: 58ch;
+    margin: 1.5rem 0 0;
+    color: var(--silk-dim);
+    font-size: clamp(0.95rem, 1.35vw, 1.12rem);
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  .poster-link {
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.95rem;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--color-fg);
-    font-size: 0.875rem;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+    font-size: 0.78rem;
     font-weight: 500;
-    transition: color 140ms ease, border-color 140ms ease,
-      background-color 140ms ease, transform 140ms ease;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    pointer-events: auto;
   }
 
-  .hero-cta:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent-soft);
-    background: rgba(215, 63, 9, 0.06);
-    transform: translateY(-1px);
+  .poster-link:hover {
+    background: #fff;
+    color: #050505;
   }
 
-  .hero-cta-primary {
-    background: var(--color-accent);
-    color: var(--color-bg);
-    border-color: var(--color-accent);
+  .map-note {
+    position: absolute;
+    right: 3rem;
+    bottom: 2rem;
+    z-index: 3;
+    margin: 0;
+    color: var(--silk-faint);
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .hero-cta-primary:hover {
-    background: var(--color-accent-soft);
-    color: var(--color-bg);
-    border-color: var(--color-accent-soft);
-  }
-
-  @media (max-width: 640px) {
+  @media (max-width: 780px) {
     .hero {
-      padding: 2.5rem 0 3rem;
+      height: 165svh;
+      min-height: 58rem;
     }
 
-    .hero-cta {
-      padding: 0.7rem 1rem;
-      font-size: 0.9rem;
+    .hero-copy {
+      top: clamp(2.5rem, 8vw, 5rem);
+      left: 1.25rem;
+      width: min(36rem, calc(100% - 2.5rem));
+      padding: 1rem 1.5rem 2rem 0;
+      background: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, 0.93) 78%, transparent 100%);
+    }
+
+    h1 {
+      font-size: clamp(3rem, 13vw, 5.2rem);
+    }
+
+    .hero-subhead {
+      max-width: 48ch;
+    }
+
+    .map-note {
+      right: 1.25rem;
+      bottom: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      height: 160svh;
+      min-height: 52rem;
+    }
+
+    .hero-copy {
+      top: 2rem;
+      left: 1rem;
+      width: calc(100% - 2rem);
+      padding: 0.75rem 0 1.5rem;
+      background: linear-gradient(180deg, #030303 0%, rgba(3, 3, 3, 0.92) 78%, transparent 100%);
+    }
+
+    .district-detail,
+    .map-border text,
+    .scale-mark {
+      display: none;
+    }
+
+    .district-name {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      height: 100svh;
+      min-height: 0;
+    }
+
+    .poster-frame {
+      position: relative;
+      opacity: 1;
+      transform: none;
+    }
+
+    .tour-routes path.traveling {
+      animation: none;
+    }
+
+    .tour-routes path,
+    .district-area,
+    .district-marker {
+      transition: none;
     }
   }
 </style>

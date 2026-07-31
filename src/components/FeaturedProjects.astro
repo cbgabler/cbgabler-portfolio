@@ -2,42 +2,34 @@
 import { getCollection } from "astro:content";
 import ProjectCard from "./ProjectCard.astro";
 
+const homepageOrder = ["glassbox", "catalytica"];
 const projects = (await getCollection("projects"))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => a.data.order - b.data.order);
-
-const featured = projects.filter((p) => p.data.featured);
-const rest = projects.filter((p) => !p.data.featured);
+  .filter((project) => !project.data.draft && homepageOrder.includes(project.slug))
+  .sort((a, b) => homepageOrder.indexOf(a.slug) - homepageOrder.indexOf(b.slug));
 ---
 
-<section id="projects" class="py-16 sm:py-20" aria-labelledby="projects-heading">
-  <header class="mb-10">
-    <h2
-      id="projects-heading"
-      class="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-fg-strong)]"
-    >
-      Projects
-    </h2>
-    <p class="text-sm text-[var(--color-fg-muted)] mt-2 max-w-[55ch]">
-      Selected work. Each card opens a long-form case study with
-      methodology, results, and a link to the repo.
-    </p>
-  </header>
+<section id="projects" class="section-shell projects" aria-labelledby="projects-heading">
+  <div class="site-container">
+    <header class="section-header" data-reveal>
+      <p class="section-eyebrow">District 02 · Selected works</p>
+      <h2 id="projects-heading" class="section-title">What I've built</h2>
+    </header>
 
-  <div class="space-y-6">
-    {featured.map((project) => (
-      <ProjectCard project={project} featured />
-    ))}
-    {rest.length > 0 && (
-      <div
-        class={
-          rest.length > 1
-            ? "grid grid-cols-1 md:grid-cols-2 gap-6"
-            : "grid grid-cols-1 gap-6"
-        }
-      >
-        {rest.map((project) => <ProjectCard project={project} />)}
-      </div>
-    )}
+    <div class="project-list">
+      {projects.map((project) => (
+        <ProjectCard project={project} featured={project.slug === "glassbox"} />
+      ))}
+    </div>
   </div>
 </section>
+
+<style>
+  .projects {
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .project-list {
+    display: grid;
+    gap: 1.25rem;
+  }
+</style>

@@ -1,217 +1,188 @@
 ---
 import { Icon } from "astro-icon/components";
 import { SITE } from "../data/site";
-
-type Row = {
-  key: string;
-  label: string;
-  value: string;
-  href?: string;
-  icon: string;
-  external?: boolean;
-};
-
-const rows: Row[] = [];
-
-if (SITE.contact.email) {
-  rows.push({
-    key: "email",
-    label: "Email",
-    value: SITE.contact.email,
-    href: `mailto:${SITE.contact.email}`,
-    icon: "lucide:mail",
-  });
-}
-if (SITE.contact.emailAcademic) {
-  rows.push({
-    key: "email-academic",
-    label: "Academic email",
-    value: SITE.contact.emailAcademic,
-    href: `mailto:${SITE.contact.emailAcademic}`,
-    icon: "lucide:graduation-cap",
-  });
-}
-if (SITE.contact.github) {
-  rows.push({
-    key: "github",
-    label: "GitHub",
-    value: `@${SITE.contact.github.handle}`,
-    href: SITE.contact.github.url,
-    icon: "lucide:github",
-    external: true,
-  });
-}
-if (SITE.contact.linkedin) {
-  rows.push({
-    key: "linkedin",
-    label: "LinkedIn",
-    value: `/in/${SITE.contact.linkedin.handle}`,
-    href: SITE.contact.linkedin.url,
-    icon: "lucide:linkedin",
-    external: true,
-  });
-}
-if (SITE.contact.scholar) {
-  rows.push({
-    key: "scholar",
-    label: "Google Scholar",
-    value: "Profile",
-    href: SITE.contact.scholar.url,
-    icon: "lucide:book-open",
-    external: true,
-  });
-}
 ---
 
-<section id="contact" class="py-16 sm:py-20" aria-labelledby="contact-heading">
-  <div class="max-w-2xl">
-    <header class="mb-6">
-      <h2
-        id="contact-heading"
-        class="font-display text-3xl sm:text-4xl font-semibold text-[var(--color-fg-strong)]"
-      >
-        Contact
-      </h2>
-      <p class="text-sm text-[var(--color-fg-muted)] mt-2 max-w-[55ch]">
-        Reach out about graduate research positions, embedded-security
-        collaborations, or interesting firmware. Email is fastest.
-      </p>
+<section id="contact" class="section-shell contact" aria-labelledby="contact-heading">
+  <div class="site-container contact-grid">
+    <header class="section-header" data-reveal>
+      <p class="section-eyebrow">District 05 · Contact</p>
+      <h2 id="contact-heading" class="section-title">Let's talk</h2>
+      <p class="availability">{SITE.availability}</p>
     </header>
 
-    <address class="not-italic contact-card">
-      <ul class="contact-list">
-        {rows.map((row) => (
-          <li class="contact-row">
-            <Icon name={row.icon} class="contact-icon" />
-            <div class="contact-line">
-              <span class="contact-label">{row.label}</span>
-              {row.href ? (
-                <a
-                  href={row.href}
-                  target={row.external ? "_blank" : undefined}
-                  rel={row.external ? "noreferrer" : undefined}
-                  class="contact-value"
-                >
-                  {row.value}
-                </a>
-              ) : (
-                <span class="contact-value">{row.value}</span>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div class="contact-panel panel" data-reveal>
+      <div class="email-row">
+        <div>
+          <span class="contact-label">email</span>
+          <a class="contact-primary" href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a>
+        </div>
+        <button class="copy-button" type="button" data-email={SITE.contact.email} aria-describedby="copy-status">
+          <Icon name="lucide:copy" class="contact-icon" />
+          <span>Copy</span>
+        </button>
+      </div>
 
-      {SITE.cv?.file && (
-        <a href="/cv" class="cv-cta">
-          <Icon name="lucide:file-down" class="w-4 h-4" />
-          <span>Download {SITE.cv.label}</span>
+      <div class="contact-links">
+        <a href={SITE.contact.github.url} target="_blank" rel="noreferrer">
+          <Icon name="lucide:github" class="contact-icon" />
+          GitHub
         </a>
-      )}
-    </address>
+        <a href={SITE.contact.linkedin.url} target="_blank" rel="noreferrer">
+          <Icon name="lucide:linkedin" class="contact-icon" />
+          LinkedIn
+        </a>
+      </div>
+
+      <p id="copy-status" class="copy-status" aria-live="polite"></p>
+    </div>
   </div>
 </section>
 
+<script>
+  const copyButton = document.querySelector<HTMLButtonElement>(".copy-button");
+  const copyStatus = document.getElementById("copy-status");
+
+  copyButton?.addEventListener("click", async () => {
+    const email = copyButton.dataset.email;
+    if (!email || !copyStatus) return;
+
+    try {
+      if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(email);
+      copyButton.querySelector("span")!.textContent = "Copied";
+      copyStatus.textContent = "Email address copied to clipboard.";
+      window.setTimeout(() => {
+        copyButton.querySelector("span")!.textContent = "Copy";
+      }, 2200);
+    } catch {
+      copyStatus.textContent = "Copy failed. Select the email address and copy it manually.";
+    }
+  });
+</script>
+
 <style>
-  .contact-card {
+  .contact {
+    background: var(--bg-deep);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(24rem, 1.25fr);
+    gap: clamp(2.5rem, 8vw, 7rem);
+    align-items: end;
+  }
+
+  .section-header {
+    margin-bottom: 0;
+  }
+
+  .availability {
+    max-width: 38ch;
+    margin: 1.25rem 0 0;
+    color: var(--silk-dim);
+  }
+
+  .contact-panel {
+    padding: clamp(1.25rem, 4vw, 2rem);
+  }
+
+  .email-row {
     display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 1.4rem 1.5rem;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line-soft);
   }
 
-  .contact-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+  .email-row > div {
+    min-width: 0;
   }
 
-  .contact-row {
-    display: grid;
-    grid-template-columns: 1.25rem 1fr;
-    gap: 0.85rem;
-    align-items: baseline;
+  .contact-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--silk-dim);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .contact-primary {
+    color: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: clamp(0.92rem, 2.5vw, 1.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .contact-primary:hover {
+    color: var(--silk);
+  }
+
+  .copy-button,
+  .contact-links a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border: 1px solid var(--route);
+    background: transparent;
+    color: var(--route-active);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    cursor: pointer;
+    transition: border-color 140ms ease, background-color 140ms ease,
+      color 140ms ease;
+  }
+
+  .copy-button {
+    flex: 0 0 auto;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .copy-button:hover,
+  .contact-links a:hover {
+    border-color: var(--route-active);
+    background: #fff;
+    color: #050505;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .contact-links a {
+    padding: 0.55rem 0.85rem;
   }
 
   .contact-icon {
     width: 1rem;
     height: 1rem;
-    color: var(--color-fg-muted);
-    position: relative;
-    top: 0.15rem;
   }
 
-  .contact-line {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.6rem;
-    min-width: 0;
+  .copy-status {
+    min-height: 1.4em;
+    margin: 0.8rem 0 0;
+    color: var(--silk-dim);
+    font-size: 0.75rem;
   }
 
-  .contact-label {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-fg-muted);
-    flex-shrink: 0;
-    min-width: 7rem;
-  }
-
-  .contact-value {
-    color: var(--color-fg);
-    word-break: break-word;
-  }
-
-  a.contact-value {
-    color: var(--color-fg);
-    transition: color 120ms ease;
-  }
-
-  a.contact-value:hover {
-    color: var(--color-accent-soft);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-  }
-
-  .cv-cta {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.95rem;
-    border: 1px solid var(--color-accent);
-    background: var(--color-accent);
-    color: var(--color-bg);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: background-color 140ms ease, border-color 140ms ease;
-  }
-
-  .cv-cta:hover {
-    background: var(--color-accent-soft);
-    border-color: var(--color-accent-soft);
-  }
-
-  @media (max-width: 640px) {
-    .cv-cta {
-      padding: 0.7rem 1rem;
-      font-size: 0.9rem;
+  @media (max-width: 800px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 480px) {
-    .contact-label {
-      min-width: 5.5rem;
+  @media (max-width: 500px) {
+    .email-row {
+      align-items: flex-start;
+      flex-direction: column;
     }
   }
 </style>

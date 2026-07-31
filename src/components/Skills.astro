@@ -1,0 +1,90 @@
+---
+import { SITE } from "../data/site";
+---
+
+<section id="skills" class="section-shell" aria-labelledby="skills-heading">
+  <div class="site-container">
+    <header class="section-header" data-reveal>
+      <p class="section-eyebrow">District 01 · Practice</p>
+      <h2 id="skills-heading" class="section-title">What I work with</h2>
+    </header>
+
+    <div class="skills-grid">
+      {SITE.skills.map((skill) => (
+        <article class="skill-card panel" data-reveal>
+          <span class="skill-tag">{skill.tag}</span>
+          <h3>{skill.title}</h3>
+          <ul>
+            {skill.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .skill-card {
+    position: relative;
+    min-height: 100%;
+    padding: 1.5rem;
+    border-top: 3px solid var(--route);
+  }
+
+  .skill-tag {
+    display: inline-flex;
+    min-height: 1.7rem;
+    align-items: center;
+    padding-inline: 0.48rem;
+    border: 1px solid var(--route);
+    color: var(--route-active);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  h3 {
+    margin: 1.25rem 0 0;
+    color: var(--silk);
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1.15rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding: 0.2rem 0.48rem;
+    border: 1px solid var(--line-soft);
+    color: var(--silk-dim);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 1020px) and (min-width: 768px) {
+    .skills-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 767px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
